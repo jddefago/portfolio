@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juan Diego Defago — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;600&family=Montserrat:wght@500;600;700&family=Manrope:wght@400;700&family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="contact-menu">
+    <button type="button" class="contact-trigger" id="contactTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="contactPopover">
+      <span class="profile-btn" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10.25" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="12" cy="9.8" r="3.4" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M5.3 18.4C6.6 15.9 9 14.4 12 14.4C15 14.4 17.4 15.9 18.7 18.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="contact-label">Contact</span>
+    </button>
+
+    <!-- Pops open on click of either the icon or the "Contact" label above
+         (see initContactMenu, js/script.js) — three ways to reach me, each
+         sliding/popping in with its own staggered delay (see
+         .contact-popover-link's transition-delay below) rather than
+         appearing all at once. -->
+    <div class="contact-popover" id="contactPopover">
+      <a class="contact-popover-link contact-popover-linkedin" href="https://www.linkedin.com/in/juan-diego-defago-angulo-b0605328b/" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="22" height="22" rx="4.5" fill="#0A66C2"/>
+          <path d="M7.85 9.75H4.9V19.1h2.95V9.75ZM6.38 8.45c1 0 1.62-.66 1.62-1.48-.02-.84-.62-1.47-1.6-1.47-.98 0-1.62.63-1.62 1.47 0 .82.62 1.48 1.58 1.48h.02ZM9.55 19.1h2.95v-5.23c0-.28.02-.56.1-.76.23-.56.75-1.14 1.62-1.14 1.14 0 1.6.87 1.6 2.14v4.99h2.95v-5.35c0-2.73-1.46-4-3.4-4-1.57 0-2.26.87-2.65 1.47h.02v-1.27H9.55c.04.83 0 9.15 0 9.15Z" fill="#fff"/>
+        </svg>
+      </a>
+      <button type="button" class="contact-popover-link contact-popover-email" id="contactEmailBtn" aria-label="Copy email address">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2.5" y="5" width="19" height="14" rx="2.3" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M3.5 6.5 12 13l8.5-6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <a class="contact-popover-link contact-popover-cv" href="media/CV.pdf" target="_blank" rel="noopener" aria-label="Open CV">
+        <span class="contact-popover-cv-text" aria-hidden="true">CV</span>
+      </a>
+    </div>
+
+    <div class="contact-toast" id="contactToast" role="status" aria-live="polite">Email copied to clipboard</div>
+  </div>
+
+  <nav class="main-nav" id="mainNav">
+    <a href="#hero" class="nav-link active" data-nav="hero">Main Page</a>
+    <a href="#projects" class="nav-link" data-nav="projects">Projects</a>
+    <a href="#experience" class="nav-link" data-nav="experience">Experience</a>
+    <a href="#skills" class="nav-link" data-nav="skills">Skills</a>
+    <a href="#story" class="nav-link" data-nav="story">My Story</a>
+  </nav>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="hero">
+    <div class="hero-sky"></div>
+    <div class="hero-vignette"></div>
+
+    <img src="media/cloud%201.png" alt="" class="hero-cloud hero-cloud-1" aria-hidden="true">
+    <img src="media/cloud%203.png" alt="" class="hero-cloud hero-cloud-2" aria-hidden="true">
+    <img src="media/cloud%203.png" alt="" class="hero-cloud hero-cloud-3" aria-hidden="true">
+
+    <img src="media/island-small-trimmed.png" alt="" class="hero-island-far" aria-hidden="true">
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <i></i>
+    </div>
+
+    <div class="hero-copy">
+      <p class="hero-eyebrow">I am</p>
+      <h1 class="hero-name">Juan Diego Defago</h1>
+    </div>
+
+    <img src="media/hero-island-trimmed.png" alt="Illustration of a person sitting on a floating island, looking out at the horizon" class="hero-island-main">
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <!-- Layout below is lifted directly from the source Canva file: scattered
+       floating-island cards + decorative clouds over a cream backdrop. -->
+  <section class="projects-section" id="projects">
+    <div class="projects-header">
+      <h2 class="projects-title">Projects</h2>
+      <div class="projects-divider">
+        <span class="divider-line"></span>
+        <span class="divider-diamond"></span>
+        <span class="divider-line"></span>
+      </div>
+      <p class="projects-subtitle">A collection of challenges, ideas, and experiences that took me beyond the classroom.</p>
+    <img src="media/cloud%201.png" alt="" class="proj-cloud proj-cloud-1" aria-hidden="true">
+    </div>
+
+    <div class="projects-canvas" id="projectsCanvas">
+    <img src="media/cloud%202.png" alt="" class="proj-cloud proj-cloud-2" aria-hidden="true">
+    <img src="media/cloud%203.png" alt="" class="proj-cloud proj-cloud-3 cloud-flip" aria-hidden="true">
+    <img src="media/cloud%205.png" alt="" class="proj-cloud proj-cloud-4" aria-hidden="true">
+
+    <img src="media/island-small-trimmed.png" alt="" class="proj-deco proj-deco-1" aria-hidden="true">
+    <button type="button" class="proj-deco proj-deco-2 construction-toggle" aria-label="Under construction — click to knock over the cone">
+      <span class="construction-scene">
+        <img src="media/island-construction-standing-trimmed.png" alt="Traffic cone and barrier on a floating island" class="construction-img construction-standing" loading="lazy">
+        <img src="media/island-construction-fallen-trimmed.png" alt="" aria-hidden="true" class="construction-img construction-fallen" loading="lazy">
+      </span>
+    </button>
+
+    <button type="button" class="project-island proj-samsung" data-project="samsung" aria-label="Show Samsung project details"
+      data-title="Samsung Solve for Tomorrow — Finalist" data-date="Aug 2025 – Nov 2025" data-images="media/SST%20Picture.jpg,media/SST%20Picture%202.jpg"
+      data-description="Reached the finals during the Samsung Solve for Tomorrow, a student innovation initiative combining technology, sustainability, and social impact.
+
+Working in a multidisciplinary team, we developed a circular logistics packaging concept aimed at reducing waste from single-use plastic wrapping and conventional pallets. Our proposed solution combined reusable protective wrapping with compatible pallets made from recycled or sustainable materials, designed to be durable, easy to install, removable, and suitable for repeated use.
+
+We followed an iterative development process, refining the concept through material assessment, mentor feedback, and prioritized the development of a clear business value proposition.
+
+Our project reached the finals at the Samsung Benelux offices at Schiphol. The experience reinforced that meaningful innovation requires more than a strong idea: it depends on direct engagement with experts and users, continuous testing, effective communication, and the ability to balance creativity, feasibility, and social responsibility.">
+      <span class="island-float"><img src="media/island-samsung-trimmed.png" alt="Samsung project illustration" loading="lazy"></span>
+    </button>
+    <button type="button" class="project-island proj-akzonobel" data-project="akzonobel" aria-label="Show AkzoNobel project details"
+      data-title="AkzoNobel — Innovation Clinic" data-date="Oct 2025 – Jun 2026" data-images="media/Akzo%201.jpg,media/Akzo%202.jpeg"
+      data-description="Working in a team of Master’s students from Rotterdam School of Management, we explored how AkzoNobel could better understand employee experiences, concerns, and attitudes during technological change. Through employee interviews and organisational research, we found that collecting feedback is not enough on its own: employees also need clarity about who receives their input, who is responsible for acting on it, and how outcomes are communicated back.
+
+Based on these findings, we developed a structured feedback concept built around three principles: accessible feedback, transparent communication loops, and psychological safety. Drawing on Kaizen-inspired methodologies, the concept emphasised continuous, incremental improvement through recurring employee input, clear ownership, and visible follow-up.
+
+We concluded the project by presenting our research, proposed framework, and implementation considerations at AkzoNobel’s head office in Amsterdam. The experience strengthened my ability to translate qualitative employee insights into a practical organisational solution and reinforced the importance of trust, communication, and human-centred change management in digital transformation.">
+      <span class="island-float"><img src="media/island-akzonobel-trimmed.png" alt="AkzoNobel project illustration" loading="lazy"></span>
+    </button>
+    <button type="button" class="project-island proj-coffee" data-project="coffee" aria-label="Show coffee brand project details"
+      data-title="Bekske Coffee — Consultancy Project" data-date="Oct 2023 – Dec 2023"
+      data-description="Collaborated with a team of students to develop a B2B branding strategy for Bekske Coffee, conducting market research, brainstorming a brand positioning and message, and proposing marketing solutions.">
+      <span class="island-float"><img src="media/island-coffee-trimmed.png" alt="Coffee brand project illustration" loading="lazy"></span>
+    </button>
+    <button type="button" class="project-island proj-trophy" data-project="trophy" aria-label="Show SDG Challenge project details"
+      data-title="SDG Challenge — Best Pitch Award" data-date="Feb 2026 – May 2026" data-images="media/SDG%20Picture.jfif"
+      data-description="Won Best Pitch at the SDG Challenge for BAMBI, a Slack-based microlearning concept developed for iO Digital to strengthen cross-departmental awareness and collaboration.
+
+Working in a multidisciplinary team, we investigated a behavioural challenge within cross-functional collaboration: employees may have access to internal knowledge and communication tools, but this does not necessarily help them understand how other departments think, prioritise, and make decisions.
+
+BAMBI addresses this challenge through short, role-based workplace scenarios delivered through Slack. Employees are encouraged to consider situations from another department’s perspective and receive feedback explaining the trade-offs behind different decisions, combining microlearning, behavioural nudges, and repeated engagement to make cross-functional learning more accessible and habitual.
+
+The project strengthened my experience in translating behavioural and organisational research into a feasible workplace innovation and communicating its strategic value through an award-winning pitch.">
+      <span class="island-float"><img src="media/island-trophy-trimmed.png" alt="Trophy illustration representing the SDG Challenge award" loading="lazy"></span>
+    </button>
+
+    <div class="projects-description" id="projectsDescription">
+      <button type="button" class="projects-description-close" id="projectsDescriptionClose" aria-label="Close project details">&times;</button>
+      <div class="projects-description-body">
+        <h3 class="projects-description-title" id="projectsDescriptionTitle"></h3>
+        <p class="projects-description-date" id="projectsDescriptionDate"></p>
+        <div class="projects-description-text" id="projectsDescriptionText"></div>
+      </div>
+      <div class="projects-description-images" id="projectsDescriptionImages"></div>
+    </div>
+
+    <div class="coming-soon-toast" id="comingSoonToast" aria-live="polite">
+      <p class="coming-soon-title">Coming Soon</p>
+      <p class="coming-soon-text">There's always room for the next challenge.</p>
+    </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIENCE + SKILLS (pinned forest scene) ============ -->
+  <!-- forestPinTrack is tall (100vh + pin duration); forest-pin-stage sticks
+       to the top of the viewport while the track scrolls underneath it, so
+       Experience and Skills stay put on screen — an "unscrollable pin" —
+       for the length of that scroll. Both sections are absolutely stacked
+       inside the stage and cross-fade at the midpoint (js/script.js), while
+       one shared background on the stage itself pans left→right the whole
+       time, so it reads as one continuous scene rather than two sections. -->
+  <div class="forest-pin-track" id="forestPinTrack">
+    <div class="forest-pin-stage">
+
+      <!-- Grouped so hovering anywhere on the stump's silhouette (not just
+           the axe itself) can trigger the axe's float — see .stump-group
+           in style.css, which owns the shared ground position/pan-offset
+           that each image used to carry individually. -->
+      <div class="stump-group" id="stumpGroup">
+        <img src="media/stump-cropped.png" alt="" class="stump-overlay" id="stumpOverlay">
+        <img src="media/axe.png" alt="" class="stump-axe" id="stumpAxe">
+        <img src="media/stump-cropped-sliced-gray%20bit.png" alt="" class="stump-front-slice" id="stumpFrontSlice">
+      </div>
+
+      <!-- Big rock, bottom-left corner of forest background.png — visible
+           only while Experience is in view (the pan carries it off-screen
+           left before Skills arrives). Invisible hover target glued to its
+           on-screen spot the same way stump-overlay is (see
+           --forest-pan-offset-px); touching it plays lizard.gif over the
+           rock (see initRockLizard in js/script.js). -->
+      <div class="rock-hitzone" id="rockHitzone" aria-hidden="true"></div>
+
+      <section class="section forest-pin-layer" id="experience">
+        <div class="forest-scene-head">
+          <h2 class="forest-scene-title">Experience</h2>
+          <div class="forest-scene-divider">
+            <span class="divider-line"></span>
+            <span class="divider-diamond"></span>
+            <span class="divider-line"></span>
+          </div>
+        </div>
+
+        <!-- Single pre-rendered composite (post + both signs, already merged
+             and drawn in front of the beam) replaces the old post + sign-image
+             layers. Two invisible buttons sit over the DP World and Philips
+             boards; hovering one swaps the composite for that sign's strike
+             GIF (see playStrike in js/script.js), and clicking one opens
+             .experience-description with that role's write-up (see
+             initExperienceSignposts). -->
+        <div class="signpost-scene">
+          <img src="media/signpost_composite.png" alt="Signpost — DP World Transformation Intern, Philips Innovation &amp; Strategy Intern" class="signpost-image" id="signpostImage">
+          <button type="button" class="signpost-hitzone signpost-hitzone-top" aria-label="View DP World Transformation Intern details"
+            data-logo="media/dp-world-logo-cropped.png" data-logo-alt="DP World" data-position="Transformation Intern"
+            data-date="Jan &ndash; June 2026"
+            data-description="I worked on a broader spectrum of tasks directly under the Chief Transformation Officer. This ranged from contributing to the creation of a scorecard used to assess M&amp;A targets, to helping redesign the procurement function and prepare slide decks for shareholder communications.
+
+I also participated in the makings of a change management guide grounded in ADKAR and Six Sigma principles, alongside consulting firm methodologies, to support how transformation initiatives would actually be adopted. Other work included running competitor analysis, organizing a Should-Cost Model spreadsheet for the procurement function, and prepared the occasional set of slides for the Marketing department."></button>
+          <button type="button" class="signpost-hitzone signpost-hitzone-bottom" aria-label="View Philips Innovation &amp; Strategy Intern details"
+            data-logo="media/philips-logo-cropped.png" data-logo-alt="Philips" data-position="Innovation &amp; Strategy Intern"
+            data-date="Sep 2024 &ndash; Feb 2025"
+            data-description="I dedicated to support the development of a digital procurement solution. My role centered on understanding how the current process actually worked, where it broke down, and translating that into user stories. This meant mapping out existing workflows in detail, running workshops and feedback sessions with different teams to validate the work.
+
+I worked with both technical and non-technical colleagues, and compared different ways of working to make sure the solution matched the real problem. Through this, I got to experience Agile and Design Thinking methodologies first-hand on a major company-wide digitalization project."></button>
+        </div>
+
+        <!-- Job-detail panel for the signpost: hidden until a sign is
+             clicked (see initExperienceSignposts in js/script.js), never on
+             hover — hover is reserved for the shake GIF above. -->
+        <div class="experience-description" id="experienceDescription">
+          <div class="experience-description-slide">
+            <button type="button" class="experience-description-close" id="experienceDescriptionClose" aria-label="Close job details">&times;</button>
+            <p class="experience-description-date" id="experienceDescriptionDate"></p>
+            <div class="experience-description-inner">
+              <img class="experience-description-logo" id="experienceDescriptionLogo" alt="">
+              <p class="experience-description-position" id="experienceDescriptionPosition"></p>
+              <div class="experience-description-text" id="experienceDescriptionText"></div>
+            </div>
+            <img class="experience-description-photo" id="experienceDescriptionPhoto" src="media/philips image.png" alt="Team photo from the Philips internship">
+          </div>
+        </div>
+      </section>
+
+      <section class="section islands-section forest-pin-layer" id="skills">
+        <div class="forest-scene-head">
+          <h2 class="forest-scene-title"><span class="skills-category-tag" id="skillsCategoryTag" aria-hidden="true"></span>Skills</h2>
+          <div class="forest-scene-divider">
+            <span class="divider-line"></span>
+            <span class="divider-diamond"></span>
+            <span class="divider-line"></span>
+          </div>
+        </div>
+
+        <!-- Ground props for Skills: a rock with three figurines standing on
+             it, and a map + compass laid out in front of the stump. Shares
+             the stump/axe's px-perfect trick for the pan (see .skills-scene
+             below) but carries the Skills-mirrored offset instead, since
+             these are Skills' own decorations, not Experience's — they
+             arrive from off-screen right with the rest of Skills' content
+             (js/script.js) rather than sitting glued to a fixed background
+             pixel throughout the whole pin. -->
+        <div class="skills-scene" id="skillsScene">
+          <img src="media/rock.png" alt="" class="skills-rock">
+          <img src="media/figurines.png" alt="" class="skills-figurines">
+          <img src="media/map%201.png" alt="A treasure map and compass" class="skills-map">
+
+          <!-- Populated by initSkillsShowcase (js/script.js) when the axe,
+               map, or figurines is clicked — see media/content/Skills.txt
+               for the three skill lists. Empty and invisible until then. -->
+          <div class="skills-pills" id="skillsPills" aria-live="polite"></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ MY STORY ============ -->
+  <section class="story-section" id="story">
+    <img src="media/skills-to-story%20divider.png" alt="" class="story-divider">
+    <div class="section story-content">
+      <div class="section-head story-head">
+        <h2 class="story-title">My Story</h2>
+        <div class="story-title-divider">
+          <span class="divider-line"></span>
+          <span class="divider-diamond"></span>
+          <span class="divider-line"></span>
+        </div>
+      </div>
+      <div class="story-body">
+        <p>If I had to describe myself in three words, they would be <strong><u>adaptable</u></strong>, <strong><u>creative</u></strong>, and <strong><u>structured</u></strong>. I feel comfortable navigating new environments and unfamiliar situations while remaining grounded and approachable; something my friends often describe as being down-to-earth. My way of working is best described as <u>structured-creative</u>: I use visualization tools and clear systems to organize ideas, make connections, and turn early concepts into practical outcomes.</p>
+        <p>I was born and raised in Peru, where I began my higher education before deciding to pursue a different path. After my first year, I moved to the Netherlands, completed a <strong><u>BSc in International Business Administration</u></strong>, and later pursued an <strong><u>MSc in Management of Innovation</u></strong>. Moving abroad challenged me to adapt, build a life in a new country, and become more independent.</p>
+        <p>Throughout my studies, I actively looked for opportunities to apply what I was learning beyond the classroom. This led me to consulting projects, internships, hackathons, and international team experiences, several of which are featured throughout this portfolio.</p>
+        <p>Outside work, I enjoy hiking, travelling, cooking, photography, caring for plants, and maintaining an active lifestyle. Exploring different countries and cultures continues to <u>shape how I see the world and work with others</u>. Having completed the Tour du Mont Blanc, I hope to take on Kilimanjaro in the coming years.</p>
+      </div>
+    </div>
+    <!-- Journey/path graphic plus the three scattered photos along it —
+         positioned as % of this shared scene (see .story-map-scene in
+         style.css, which now carries the position/size that used to live
+         directly on .story-map-icon) so the photos stay put relative to
+         the path regardless of viewport width. -->
+    <div class="story-map-scene">
+      <img src="media/map%20line%20option%202.png" alt="" class="story-map-icon" aria-hidden="true">
+      <img src="media/story%201.png" alt="Graduation day, throwing caps with classmates" class="story-map-photo story-map-photo-1">
+      <img src="media/story%202.jpg" alt="Asking a question at a conference" class="story-map-photo story-map-photo-2">
+      <img src="media/story%203.jpg" alt="Reaching a mountain summit on the Tour du Mont Blanc" class="story-map-photo story-map-photo-3">
+      <img src="media/arrow%20down.png" alt="" class="story-map-arrow" aria-hidden="true">
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-name">Juan Diego Defago</p>
+
+    <!-- Absolutely centered on .footer-inner (position: relative) rather
+         than relying on the flex row's own space-between, which — with
+         the name and icon row on either side being different widths —
+         wouldn't land this dead-center. -->
+    <p class="footer-cta">Want to know what's next? <u id="footerReachOut">Reach out!</u></p>
+
+    <!-- Same three contact links as the header's popover (LinkedIn, copy
+         email, CV) — see initContactMenu (js/script.js), which wires up
+         #footerEmailBtn/#footerContactToast alongside the header's own
+         pair rather than duplicating the copy-to-clipboard logic. -->
+    <div class="footer-contact-icons">
+      <a class="footer-contact-link" href="https://www.linkedin.com/in/juan-diego-defago-angulo-b0605328b/" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="22" height="22" rx="4.5" fill="#0A66C2"/>
+          <path d="M7.85 9.75H4.9V19.1h2.95V9.75ZM6.38 8.45c1 0 1.62-.66 1.62-1.48-.02-.84-.62-1.47-1.6-1.47-.98 0-1.62.63-1.62 1.47 0 .82.62 1.48 1.58 1.48h.02ZM9.55 19.1h2.95v-5.23c0-.28.02-.56.1-.76.23-.56.75-1.14 1.62-1.14 1.14 0 1.6.87 1.6 2.14v4.99h2.95v-5.35c0-2.73-1.46-4-3.4-4-1.57 0-2.26.87-2.65 1.47h.02v-1.27H9.55c.04.83 0 9.15 0 9.15Z" fill="#fff"/>
+        </svg>
+      </a>
+      <button type="button" class="footer-contact-link" id="footerEmailBtn" aria-label="Copy email address">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2.5" y="5" width="19" height="14" rx="2.3" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M3.5 6.5 12 13l8.5-6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <a class="footer-contact-link" href="media/CV.pdf" target="_blank" rel="noopener" aria-label="Open CV">
+        <span class="footer-contact-cv-text" aria-hidden="true">CV</span>
+      </a>
+      <img src="media/arrow%20animation.gif" alt="" class="footer-reach-arrow" id="footerReachArrow" aria-hidden="true">
+    </div>
+
+    <div class="footer-contact-toast" id="footerContactToast" role="status" aria-live="polite">Email copied to clipboard</div>
+  </div>
+</footer>
+
+<!-- Lightbox for project photos (.projects-description-image) — a single
+     shared overlay reused for whichever photo was clicked, populated by
+     initImageLightbox in js/script.js. position: fixed over the whole
+     viewport (not just the projects section) so the darken-and-enlarge
+     reads as a true focus mode, not something scoped to one section.
+     The dimming backdrop is its own element, a sibling of the photo
+     rather than an ancestor — CSS opacity on a parent compounds with
+     whatever opacity its children render at, so fading the photo in via
+     an ancestor's opacity meant it was always fading with the backdrop
+     too, however the photo's own opacity was set. Keeping them siblings
+     lets the backdrop dim independently while the photo itself never
+     fades at all (see .image-lightbox-img in style.css). -->
+<div class="image-lightbox" id="imageLightbox" aria-hidden="true">
+  <div class="image-lightbox-backdrop"></div>
+  <img class="image-lightbox-img" id="imageLightboxImg" alt="">
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>

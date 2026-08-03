@@ -1,0 +1,3025 @@
+/* ============================================
+   Reset & base
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --font-display: 'Poppins', 'Segoe UI', sans-serif;
+  --font-body: 'Space Grotesk', 'Segoe UI', sans-serif;
+
+  --ink: #1b2430;
+  --paper: #faf7f2;
+  --sky-deep: #3a5470;
+  --accent: #e8955c;
+  --accent-2: #d97b4f;
+
+  --header-h: 92px;
+  --container: 1240px;
+
+  /* Horizontal read-point into the forest banner on .forest-pin-stage (see
+     js/script.js). 0% shows the image's left edge, 100% its right edge —
+     driven by scroll progress through .forest-pin-track, so it pans the
+     whole time Experience/Skills are pinned in the viewport. */
+  --forest-pan-x: 0%;
+
+  /* How much extra scroll distance .forest-pin-track adds on top of the
+     100vh it always reserves for the pinned viewport itself — i.e. how long
+     Experience+Skills stay locked in place before releasing into My Story. */
+  --forest-pin-duration: 200vh;
+
+  /* Pixel match for how far --forest-pan-x has panned the background,
+     computed in js/script.js from the image's real rendered width. Applied
+     as a translateX to Experience's signpost and title (see
+     .signpost-scene / #experience .forest-scene-head) so they move with
+     the ground instead of sitting fixed on screen while it pans under
+     them. */
+  --forest-pan-offset-px: 0px;
+
+  /* Mirror of --forest-pan-offset-px for Skills (js/script.js): positive
+     at rest (progress 0), pushing its content off-screen to the right, and
+     0 once the pan completes — so Skills' title arrives from off-screen as
+     the camera pans toward it and settles at its normal position exactly
+     when Experience's has panned fully out of view. */
+  --forest-pan-offset-skills-px: 0px;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Hides the page's own scrollbar chrome while leaving scrolling itself
+     (wheel, trackpad, keyboard, drag) fully working — this only affects
+     how the browser paints the scrollbar, not whether the page scrolls. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  overflow-x: hidden;
+  /* This is a mostly-illustrated site (islands, signposts, decorative
+     images) rather than a text page — clicking around it shouldn't drop a
+     text-selection caret on headings/buttons/art. Re-enabled below on the
+     actual prose blocks (story copy, project/experience write-ups, skill
+     pills) so that content stays selectable/copyable. */
+  user-select: none;
+}
+
+.story-body,
+.projects-description-title,
+.projects-description-date,
+.projects-description-text,
+.experience-description-date,
+.experience-description-position,
+.experience-description-text,
+.skills-pills {
+  user-select: text;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+section {
+  position: relative;
+}
+
+/* ============================================
+   Header / Nav
+   ============================================ */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(20px, 4vw, 56px);
+  z-index: 100;
+  transition: background 0.35s ease, box-shadow 0.35s ease, height 0.35s ease;
+}
+
+.site-header.scrolled {
+  height: 72px;
+}
+
+/* Wraps the icon + "Contact" label as one real <button> (see index.html —
+   nesting an interactive element inside a role="button" div would be
+   invalid) so either half opens .contact-popover; position: relative
+   anchors the popover/toast below it. flex-shrink: 0 keeps it from being
+   squeezed by .main-nav on narrower widths, same as .profile-btn used to
+   carry alone before this wrapped it. */
+.contact-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.contact-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.profile-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease, transform 0.25s ease, color 0.35s ease;
+  flex-shrink: 0;
+}
+
+.contact-trigger:hover .profile-btn {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+.contact-label {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  transition: color 0.25s ease, color 0.35s ease;
+  white-space: nowrap;
+}
+
+.contact-trigger:hover .contact-label {
+  color: #fff;
+}
+
+.site-header.on-light .contact-label {
+  color: #8b8477;
+}
+
+.site-header.on-light .contact-trigger:hover .contact-label {
+  color: #4a4640;
+}
+
+.profile-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Once the header overlaps a light section (past the hero), swap the
+   white-on-dark scheme for gray text with a brownish highlight — never
+   a solid/dark bar behind it. */
+.site-header.on-light .profile-btn {
+  color: #4a4640;
+}
+
+.site-header.on-light .contact-trigger:hover .profile-btn {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* No card background — each icon carries its own soft chip background
+   (see .contact-popover-link) so it stays legible on its own regardless
+   of what's behind it, without needing a group backing. No opacity/
+   transform of its own either (previously had a quick 0.2s fade) — that
+   was finishing well before the icons' own, much longer pop-in/retract
+   animations (see .contact-popover-link below), so the container turned
+   fully invisible partway through and hid most of their motion. Visibility
+   is entirely the icons' own doing now; this only gates pointer-events,
+   which isn't animatable and so just toggles instantly regardless. */
+.contact-popover {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.contact-popover.is-open {
+  pointer-events: auto;
+}
+
+.contact-popover-link {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #f4efe7;
+  color: #453d34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  /* Rest state doubles as both the pop-in's start point and the close
+     animation's end point: shifted up toward the trigger icon above (see
+     .contact-menu — the popover's left edge lines up with the trigger's)
+     and scaled to nothing, rather than just fading in place, so closing
+     reads as the icon retracting back into the contact button instead of
+     merely disappearing. An ease-in curve (accelerating away) rather than
+     the pop-in's bouncy overshoot — that overshoot reversed would look
+     like it bounces past the trigger before landing on it. Own transition
+     (distinct from hover's) so hover's quick scale doesn't inherit this
+     slower duration/easing. */
+  transform: translateY(-30px) scale(0);
+  opacity: 0;
+  transition: transform 0.42s cubic-bezier(0.55, 0, 1, 0.45), opacity 0.32s ease, background 0.2s ease, color 0.35s ease;
+}
+
+/* Farther down the list means farther to travel back up to the trigger —
+   scaled per item so all three still look like they're converging on the
+   same point above, not just sliding the same fixed distance. */
+.contact-popover-link:nth-child(2) { transform: translateY(-82px) scale(0); }
+.contact-popover-link:nth-child(3) { transform: translateY(-134px) scale(0); }
+
+/* Closing runs "last opened, first back" — the bottom icon (arrived last
+   on open) retracts first, then the middle, then the top, cascading back
+   into the trigger rather than all three snapping away in lockstep. Only
+   applies once .is-open is removed; the open-state delays below (higher
+   specificity) take over while it's present. */
+.contact-popover-link:nth-child(1) { transition-delay: 0.22s, 0.22s; }
+.contact-popover-link:nth-child(2) { transition-delay: 0.11s, 0.11s; }
+.contact-popover-link:nth-child(3) { transition-delay: 0s, 0s; }
+
+.contact-popover-link:hover {
+  transform: scale(1.08);
+  background: #ebe2d3;
+}
+
+.contact-popover-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+.contact-popover-cv-text {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Staggered pop-in, one icon after another rather than all three at once —
+   only engages while the card itself is open (.contact-popover.is-open),
+   so closing doesn't replay it in reverse (the card's own opacity/
+   transform fade in the rule above handles the exit instead). */
+.contact-popover.is-open .contact-popover-link {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.contact-popover.is-open .contact-popover-link:nth-child(1) { transition-delay: 0s, 0s; }
+.contact-popover.is-open .contact-popover-link:nth-child(2) { transition-delay: 0.07s, 0.07s; }
+.contact-popover.is-open .contact-popover-link:nth-child(3) { transition-delay: 0.14s, 0.14s; }
+
+/* "Email copied" confirmation — a small dark pill under the popover,
+   shown briefly by initContactMenu (js/script.js) regardless of whether
+   the popover itself is still open (copying closes it — see that
+   function), so it needs its own position rather than living inside
+   .contact-popover. */
+.contact-toast {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
+  white-space: nowrap;
+  padding: 10px 16px;
+  background: #2a2420;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 14px 28px rgba(20, 14, 8, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.contact-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4.33vw, 62px);
+  margin-left: auto;
+  margin-right: 16px;
+}
+
+.nav-link {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  padding: 6px 2px;
+  position: relative;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 1.5px;
+  background: #fff;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+.site-header.on-light .nav-link {
+  color: #8b8477;
+}
+
+.site-header.on-light .nav-link::after {
+  background: var(--accent-2);
+}
+
+.site-header.on-light .nav-link:hover {
+  color: #4a4640;
+}
+
+.site-header.on-light .nav-link.active {
+  color: #8a5a34;
+  font-weight: 600;
+}
+
+.nav-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  z-index: 110;
+}
+
+.nav-toggle span {
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+  position: relative;
+  height: 108vh;
+  min-height: 680px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+}
+
+.hero-sky {
+  position: absolute;
+  inset: 0;
+  /* The actual sky-bg.png photo, not a CSS approximation. Anchored to the
+     bottom edge so its own fade into cream lines up with the hero's bottom
+     edge, matching .projects-section's background for a seamless blend. */
+  background-image: url('../media/sky-bg.png');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10, 18, 30, 0.16) 0%, rgba(10, 18, 30, 0) 18%);
+}
+
+.hero-cloud {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* Anchored by `bottom` (not `top`) so the cloud's lower edge always sits
+   safely inside the hero, regardless of viewport aspect ratio — using `top`
+   here let overflow:hidden slice straight through the cloud shape. */
+.cloud-flip {
+  transform: scaleX(-1);
+}
+
+/* Cloud 1 — emerges from behind the main hero island (z-index below
+   .hero-island-main, which is 3, so the island overlaps its left side). */
+.hero-cloud-1 {
+  left: 22%;
+  bottom: -6.5%;
+  width: 37.8vw;
+  opacity: 0.5;
+}
+
+/* Cloud 3, positioned far left so only its trailing tip pokes up over the
+   main island's left edge — needs a z-index above the island to read as
+   "over" rather than tucked behind it. */
+.hero-cloud-2 {
+  left: -27%;
+  bottom: -11%;
+  width: 41.8vw;
+  z-index: 4;
+  opacity: 1;
+}
+
+/* Cloud 3 — sits to the right of cloud 1 and slightly lower, at 40%
+   opacity, drifting just in front of the small far island. */
+.hero-cloud-3 {
+  left: 53%;
+  bottom: -8%;
+  width: 32.73vw;
+  opacity: 0.4;
+}
+
+/* Positions below are lifted directly from the source Canva file
+   (1366x768 reference frame) as % of viewport width/height. */
+.hero-island-far {
+  position: absolute;
+  right: 2%;
+  bottom: 3%;
+  width: clamp(140px, 21.7vw, 300px);
+  z-index: 1;
+  opacity: 0.92;
+  animation: driftFar 9s ease-in-out infinite;
+}
+
+.hero-island-main {
+  position: absolute;
+  left: -30%;
+  bottom: 1%;
+  width: min(70vw, 1040px);
+  z-index: 3;
+  animation: driftMain 8s ease-in-out infinite;
+}
+
+@keyframes driftMain {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes driftFar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+/* Grass particles kicked up when hovering/touching the top of the hero
+   island — spawned by initGrassParticles() in script.js. */
+.grass-particle {
+  position: absolute;
+  width: 5px;
+  height: 12px;
+  border-radius: 40% 40% 50% 50% / 60% 60% 40% 40%;
+  z-index: 4;
+  pointer-events: none;
+  animation: grassParticleFloat 0.8s ease-out forwards;
+}
+
+@keyframes grassParticleFloat {
+  from {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.35);
+    opacity: 0;
+  }
+}
+
+.scroll-indicator {
+  position: absolute;
+  left: clamp(10px, 0.9vw, 22px);
+  top: 30.7vh;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.scroll-indicator span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.scroll-indicator i {
+  display: block;
+  width: 1px;
+  height: 64px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+  animation: scrollLine 2.2s ease-in-out infinite;
+  transform-origin: top;
+}
+
+@keyframes scrollLine {
+  0% { transform: scaleY(0.4); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0.4); opacity: 0.4; }
+}
+
+.hero-copy {
+  position: absolute;
+  z-index: 4;
+  left: 56.3%;
+  top: 33.01vh;
+  text-align: left;
+  color: #fff;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 1.65vw, 24px);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  opacity: 0.92;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.25);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.7vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Shared section styles
+   ============================================ */
+.section {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 120px clamp(20px, 5vw, 56px);
+}
+
+.section-head {
+  max-width: 640px;
+  margin-bottom: 64px;
+}
+
+.section-kicker {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.section-lede {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #5b6675;
+}
+
+/* ============================================
+   Projects — scattered floating islands
+   (positions lifted from the Canva file, as % of its
+   1366x768 reference frame, laid over a fixed-aspect box)
+   ============================================ */
+
+/* scroll-margin-top so the native #projects anchor jump (the Projects nav
+   link, unlike Experience/Skills, isn't intercepted by script.js — it relies
+   on the browser's own hash-scroll) stops with the section's top clear of
+   .site-header (position: fixed, so it doesn't push page content out of the
+   way on its own). Without this, the jump lands with the title just a few
+   px under the header — --header-h is the taller at-rest height (92px), used
+   here rather than the shorter .scrolled one (72px) so there's clearance
+   even if the header hasn't shrunk yet. */
+.projects-section {
+  position: relative;
+  background: #efe2d5;
+  scroll-margin-top: calc(var(--header-h) + 24px);
+}
+
+.projects-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 6% 0 auto;
+  padding: 40px 24px 8px;
+}
+
+.projects-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #453d34;
+  margin-top: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.projects-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px auto 12px;
+  transition: opacity 0.3s ease;
+}
+
+.divider-line {
+  width: 70px;
+  height: 1px;
+  background: var(--accent-2);
+}
+
+.divider-diamond {
+  width: 7px;
+  height: 7px;
+  background: var(--accent-2);
+  transform: rotate(45deg);
+}
+
+.projects-subtitle {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #6b6255;
+  transition: opacity 0.3s ease;
+}
+
+.projects-title.is-scrolled-past,
+.projects-divider.is-scrolled-past,
+.projects-subtitle.is-scrolled-past {
+  opacity: 0;
+}
+
+.projects-canvas {
+  position: relative;
+  width: 100%;
+  height: 46vw;
+  min-height: 350px;
+  max-height: 886px;
+  overflow: hidden;
+  background: #efe2d5;
+}
+
+.proj-cloud {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Cloud 1 — now a direct child of .projects-header (not .projects-canvas)
+   so it can float up to the subtitle's height without being clipped by the
+   canvas's overflow: hidden. Percentage `left` still resolves against
+   .projects-section (the nearest positioned ancestor), so it lines up with
+   the same full-width coordinate space as everything in the canvas below. */
+.proj-cloud-1 { left: 20%; top: 15px; width: 18vw; z-index: 2; opacity: 0.5; }
+/* anchored by bottom, not top — these two sit low enough that `top` + their
+   own height would cross the section's bottom edge and get sliced by
+   overflow:hidden (see hero clouds fix). */
+.proj-cloud-2 { left: -12%; bottom: -10%; width: 39vw; opacity: 0.5; }
+.proj-cloud-3 { left: 40.3%; bottom: 4%; width: 20.9vw; opacity: 0.4; }
+
+/* Cloud 5 — enlarged and pushed toward the canvas's right edge so only its
+   left half is visible (the rest clipped by .projects-canvas's
+   overflow: hidden), sitting low enough to cover just the bottom of the
+   smaller island on the right (.proj-deco-2, top 42.8%-68.3%). */
+.proj-cloud-4 { left: 73%; top: 40%; width: 50.4vw; z-index: 3; }
+
+.proj-deco {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 14px 20px rgba(60, 45, 20, 0.12));
+}
+
+.proj-deco-1 { left: -8.1%;  top: 0%;  width: 28.1vw; }
+.proj-deco-2 { left: 86%; top: 35%;  width: 17.5vw; }
+
+/* Under-construction island: unlike .project-island, clicking this doesn't
+   zoom in or open the description panel — it stays put and just knocks
+   the cone over, so it needs its own pointer-events/reset, separate from
+   the inert .proj-deco default. */
+.construction-toggle {
+  pointer-events: auto;
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.project-island {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: left 0.6s cubic-bezier(0.65, 0, 0.35, 1), top 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    width 0.6s cubic-bezier(0.65, 0, 0.35, 1), transform 0.35s ease, filter 0.35s ease;
+  filter: drop-shadow(0 16px 26px rgba(60, 45, 20, 0.18));
+}
+
+.project-island:hover {
+  transform: translateY(-10px) scale(1.04);
+}
+
+.project-island img {
+  width: 100%;
+  display: block;
+}
+
+/* Hover label — the project's title, floating a fixed distance above
+   whichever island is hovered/focused (see showIslandTitle in script.js).
+   A single shared element positioned via JS with position: fixed (in
+   viewport coordinates, from the island's own getBoundingClientRect())
+   rather than a per-island child anchored with CSS — the latter put the
+   label inside .projects-canvas's overflow: hidden, which sliced off
+   AkzoNobel's (it sits closest to the canvas's own top edge). Being
+   fixed and appended straight to <body> keeps it outside that clipping
+   entirely, so every island gets the exact same gap with no per-island
+   special-casing. Hidden via opacity/pointer-events, not display, so it
+   has something to animate from/to; pointer-events: none keeps it from
+   ever intercepting the click that opens the project. */
+.project-island-title {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, calc(-100% + 6px));
+  color: #000;
+  font-family: var(--font-display);
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Skills props' version of the same hover label (see initSkillsShowcase,
+   js/script.js) — white instead of the project islands' black, with the
+   text-shadow flipped dark to match so it stays legible against whatever's
+   behind it, rather than the white glow made for black text disappearing
+   entirely under white text. */
+.skills-hover-title {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.project-island-title.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -100%);
+}
+
+/* First line — the project name itself. */
+.project-island-title-main {
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Second line — the subtitle after the em-dash, if any (e.g. "Best Pitch
+   Award"): 2px smaller than the main line and not bold, so it reads as a
+   secondary detail rather than a second heading. */
+.project-island-title-sub {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* idle bob — lives on a child so it composes with the hover/click transforms
+   on .project-island instead of fighting them for the same property */
+.island-float {
+  display: block;
+  animation: islandBob 6s ease-in-out infinite;
+}
+
+/* Under-construction island: two pre-rendered states (cone standing /
+   fallen) cross-fade on click instead of a synthetic rotation — the source
+   art only exists as two full-scene renders, not a separate cone layer. */
+.construction-scene {
+  position: relative;
+  display: block;
+  /* Reserves layout space before either image has loaded — without this
+     the container collapses to height:0 (neither <img> has an intrinsic
+     size yet), which also stops `loading="lazy"` from ever firing since
+     there's no visible area to intersect. Matches both renders' aspect
+     ratio (1122x1402). */
+  aspect-ratio: 1122 / 1402;
+}
+
+.construction-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.construction-fallen {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.construction-toggle.is-fallen .construction-standing {
+  opacity: 0;
+}
+
+.construction-toggle.is-fallen .construction-fallen {
+  opacity: 1;
+}
+
+.proj-samsung   { left: 14.11%; top: 26.58%; width: 17.15vw; }
+.proj-akzonobel { left: 31.57%; top: 6.67%;  width: 18.04vw; }
+.proj-coffee    { left: 50.72%; top: 36.82%; width: 13.59vw; }
+.proj-trophy    { left: 65.32%; top: 13.02%; width: 16.43vw; }
+
+.proj-samsung   .island-float { animation-delay: -0.6s; }
+.proj-akzonobel .island-float { animation-delay: -2.4s; }
+.proj-coffee    .island-float { animation-delay: -4.1s; }
+.proj-trophy    .island-float { animation-delay: -3.2s; }
+
+@keyframes islandBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+/* ---- active / selected project state ---- */
+
+.projects-canvas.has-active .project-island {
+  z-index: 4;
+}
+
+.projects-canvas.has-active .project-island.is-active {
+  z-index: 6;
+}
+
+.projects-canvas.has-active .project-island.is-active .island-float {
+  animation-duration: 8s;
+}
+
+.projects-canvas.has-active .project-island:not(.is-active) .island-float {
+  animation-duration: 4.5s;
+}
+
+.projects-canvas.has-active .project-island:not(.is-active) {
+  filter: drop-shadow(0 10px 16px rgba(60, 45, 20, 0.16));
+}
+
+.projects-canvas.has-active .project-island:not(.is-active):hover {
+  transform: translateY(-6px) scale(1.06);
+}
+
+.projects-description {
+  position: absolute;
+  z-index: 5;
+  /* Lined up with the top edge of the enlarged island (ACTIVE_TOP in
+     script.js), instead of vertically centered on the section. */
+  left: 45%;
+  top: 4%;
+  width: 33vw;
+  max-width: 460px;
+  min-width: 260px;
+  /* Lets .projects-description-title's per-project cqw sizing below measure
+     against THIS element's actual rendered width (which itself moves
+     between 260px and 460px via the width/min/max-width above) rather than
+     the viewport — see that rule's comment for why. */
+  container-type: inline-size;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease 0.15s, transform 0.45s ease 0.15s;
+}
+
+.projects-description-close {
+  position: absolute;
+  top: -6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: #9c8f7c;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.projects-description-close:hover {
+  color: #453d34;
+}
+
+/* The write-up only now (photos are a sibling below, not inside this
+   scrolling area — see .projects-description-images). Kept in normal flow
+   (not absolutely positioned) so it's what actually drives
+   .projects-description's own height, then clamped and scrolled on its own
+   so a long write-up never pushes the close button out of reach above it,
+   or the photos below off the bottom of the canvas.
+
+   The value below is just a fallback for the instant before JS runs —
+   activate() (js/script.js) overwrites this inline on every activation,
+   measuring the actual room left below the panel and the photo collage's
+   own actual rendered height (which varies with panel width in a way a
+   static formula here couldn't track — see that function's comment) and
+   setting an exact max-height from the two, so photos never get clipped by
+   .projects-canvas's own overflow:hidden regardless of viewport size or
+   how many photos a project has. */
+.projects-description-body {
+  max-height: 45vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(69, 61, 52, 0.32) transparent;
+}
+
+.projects-description-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Chrome/Edge on Windows draw clickable up/down arrow buttons at each end
+   of a customized scrollbar by default — collapsed to nothing here so it's
+   just a clean track + thumb. */
+.projects-description-body::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* margin insets the track from the panel's own top/bottom edge — a native
+   scrollbar's thumb length is fixed to the content/viewport ratio (not
+   directly stylable), so this is what actually makes the bar read as
+   shorter than the panel's full height rather than running edge-to-edge. */
+.projects-description-body::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+
+.projects-description-body::-webkit-scrollbar-thumb {
+  background: rgba(69, 61, 52, 0.32);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.projects-description-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(69, 61, 52, 0.5);
+}
+
+.projects-canvas.has-active .projects-description {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.projects-description-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #453d34;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+/* Per-project sizing so every title fits on its own single line — titles
+   run from 30 characters ("AkzoNobel — Innovation Clinic") to 38
+   ("Samsung Solve for Tomorrow — Finalist"), too wide a spread for one
+   shared size to fit the longest without either wrapping it or shrinking
+   the shortest more than it needs. cqw (not vw) ties each one to
+   .projects-description's own rendered width (see container-type on that
+   rule) — the panel's width already moves between 240px and 420px on its
+   own (width: 29vw, min/max-width), so sizing off the viewport directly
+   would drift out of sync with the panel's actual available space. Each
+   value below was calibrated by measuring the title's real rendered width
+   at a reference font-size and solving for what fits inside the panel's
+   narrowest case (min-width: 240px, minus the scrolling body's own
+   padding), with a safety margin; the clamp's 30px ceiling matches the
+   shared rule above so nothing renders larger than the original design. */
+.projects-description[data-project="akzonobel"] .projects-description-title {
+  font-size: clamp(11px, 5.89cqw, 30px);
+}
+
+.projects-description[data-project="samsung"] .projects-description-title {
+  font-size: clamp(11px, 4.58cqw, 30px);
+}
+
+.projects-description[data-project="coffee"] .projects-description-title {
+  font-size: clamp(11px, 4.85cqw, 30px);
+}
+
+.projects-description[data-project="trophy"] .projects-description-title {
+  font-size: clamp(11px, 5.23cqw, 30px);
+}
+
+/* Date range, e.g. "Aug 2025 – Nov 2025" — same small-caps-ish treatment as
+   .experience-description-date, just in normal document flow here rather
+   than positioned in % of a painted note. */
+.projects-description-date {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9c8f7c;
+  margin: 0 0 14px;
+}
+
+.projects-description-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  color: #6b6255;
+}
+
+.projects-description-text p + p {
+  margin-top: 14px;
+}
+
+/* Project photos, shown under the write-up as a small scattered stack —
+   framed like prints (white border, drop shadow, a slight independent
+   rotation) rather than uniform UI thumbnails, so they read as photos
+   pinned to the scene. .is-pair (AkzoNobel's two) vs .is-single (Samsung,
+   the SDG pitch) is set by initProjectIslands (js/script.js) from how many
+   images a project actually has; a project with none leaves this empty. */
+.projects-description-images {
+  position: relative;
+  margin-top: 26px;
+  /* Lets corner-anchoring math below (e.g. .is-pair's first-child `top`)
+     use cqw to reference THIS box's own width — `top`/`bottom` percentages
+     normally resolve against a box's height, not width, which is exactly
+     why a fixed px `top` alongside a %-width, aspect-ratio-driven height
+     drifts out of position across viewports where this container's own
+     width isn't fixed. */
+  container-type: inline-size;
+}
+
+.projects-description-images:empty {
+  margin-top: 0;
+}
+
+.projects-description-image {
+  display: block;
+  /* No aspect-ratio here — each photo gets its own real one set inline by
+     initProjectIslands (js/script.js, from a preload pass so it's known
+     immediately rather than only once the photo has loaded), so nothing
+     gets cropped. object-fit: contain is just a fallback for the rare case
+     a photo's dims weren't cached yet when its project opened. */
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 14px 24px rgba(60, 45, 20, 0.28);
+  cursor: pointer;
+  /* Same slide-up-from-below entrance as .experience-description-slide (see
+     that rule's comment) — matching cubic-bezier curves and durations, just
+     over a much smaller distance. Re-armed on every activation via the
+     is-visible toggle in initProjectIslands (js/script.js: remove ->
+     repopulate -> forced reflow -> re-add), so it replays even when
+     switching directly between two projects. */
+  transform: translateY(36px);
+  transition: transform 0.55s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+
+.projects-description-images.is-visible .projects-description-image {
+  transform: translateY(0);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Two photos: overlapping. The container's own height is set inline by
+   initProjectIslands (js/script.js) from whichever photo actually renders
+   taller — an aspect-ratio here couldn't do that on its own since the two
+   photos have different real shapes and neither contributes to an auto
+   height once taken out of flow for absolute positioning.
+
+   Widened past the panel's own right edge (.projects-description has no
+   overflow:hidden of its own, only the canvas far beyond it does) so the
+   pair isn't squeezed to the write-up's exact column width — the photos
+   can spill slightly into the open scene the way they would if just set
+   down on it, rather than reading as boxed into the text block above. */
+.projects-description-images.is-pair {
+  width: 116%;
+}
+
+.projects-description-images.is-pair .projects-description-image {
+  position: absolute;
+  width: 60%;
+}
+
+/* Each project's pair gets its own arrangement (sizes/corners/z-index) —
+   scoped by .projects-description[data-project] (set from the active
+   island's data-project in initProjectIslands, js/script.js) rather than
+   shared, since AkzoNobel's two-photo composition and Samsung's read
+   differently (a big hero shot with a small one tucked in its corner,
+   vs. two similarly-weighted photos). */
+
+/* AkzoNobel — the three-people photo: sized up slightly and nudged below
+   the container's own bottom edge. */
+.projects-description[data-project="akzonobel"] .projects-description-images.is-pair .projects-description-image:first-child {
+  left: 0;
+  bottom: -75px;
+  width: 66%;
+  z-index: 1;
+}
+
+/* AkzoNobel — the office/screen photo: sized down slightly, brought in
+   front of the photo above (higher z-index), nudged past the container's
+   own top edge, and positioned (a % of the container, not a fixed px, so
+   it scales with it) to sit over the right corner of the photo below it
+   rather than its left one. */
+.projects-description[data-project="akzonobel"] .projects-description-images.is-pair .projects-description-image:last-child {
+  left: 56%;
+  top: -16px;
+  width: 33%;
+  z-index: 2;
+}
+
+/* Samsung — the main SST photo: fills most of the collage, roughly where a
+   single photo would sit, shifted right to leave room for the smaller
+   photo's corner overlap on the left. top is in cqw (a % of THIS box's own
+   width, via container-type on .projects-description-images above), not
+   px — that's what keeps the lower-right corner genuinely fixed as width
+   changes, at every viewport, rather than only at whichever one a fixed px
+   value happened to be measured against. */
+.projects-description[data-project="samsung"] .projects-description-images.is-pair .projects-description-image:first-child {
+  left: 19%;
+  top: 4.28cqw;
+  width: 70%;
+  z-index: 1;
+}
+
+/* Samsung — the second SST photo: tucked into and overlapping the top-left
+   corner of the main photo above (higher z-index brings it in front),
+   nudged past the container's own left/top edge, sized up a bit. */
+.projects-description[data-project="samsung"] .projects-description-images.is-pair .projects-description-image:last-child {
+  left: -16px;
+  top: -16px;
+  width: 45%;
+  z-index: 2;
+}
+
+/* One photo: centered, normal flow (not absolutely positioned, so the
+   container's height just follows its own aspect-ratio naturally). */
+.projects-description-images.is-single .projects-description-image {
+  width: 88%;
+  margin: 0 auto;
+}
+
+/* Lightbox: clicking any project photo (.projects-description-image, see
+   initImageLightbox in js/script.js) enlarges it over a dimmed backdrop
+   covering the whole viewport — position: fixed, not scoped to the
+   projects section, so it reads as a real focus mode. Sits above
+   everything else on the page (highest z-index in the stylesheet). Hidden
+   via opacity/pointer-events rather than display, so the enlarge
+   transition has something to animate from/to. */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.image-lightbox.is-visible {
+  pointer-events: auto;
+}
+
+/* The dimming layer. A separate element (not the photo's ancestor) so its
+   fade is a plain background-color transition — nothing here uses the
+   `opacity` property, which is what compounds with a child's own opacity
+   and was making the photo fade along with the backdrop regardless of its
+   own settings. */
+.image-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 14, 8, 0);
+  transition: background-color 0.6s ease;
+}
+
+.image-lightbox.is-visible .image-lightbox-backdrop {
+  background: rgba(20, 14, 8, 0.82);
+}
+
+/* Positioned and sized in real px via JS (initImageLightbox, script.js),
+   the same way .project-island is driven by placeIsland — a plain,
+   permanent transition on left/top/width/height that JS just assigns new
+   values to, rather than a one-off inline transform+reflow dance.
+   position: fixed makes those px values viewport-relative, so they line
+   up directly with the clicked thumbnail's own getBoundingClientRect().
+   No opacity/fade here at all: the photo stays fully visible for its
+   whole move in both directions and is only ever shown/hidden via
+   `visibility`, which (left out of the transition list below) toggles
+   instantly rather than fading — so it can snap into view exactly over
+   the thumbnail's spot, or snap back to hidden exactly when the restored
+   thumbnail is already there to take its place. */
+.image-lightbox-img {
+  position: fixed;
+  visibility: hidden;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  object-fit: contain;
+  /* rotate is the standalone CSS Transforms Level 2 property (same
+     convention as .stump-axe's rotate/scale) rather than folded into
+     `transform` — initImageLightbox (js/script.js) reads a tilted source
+     thumbnail's own rotation (project photos are flat, but
+     .story-map-photo isn't) and sets this to match at open, then
+     transitions it to 0deg alongside the position/size change, so a
+     rotated photo un-tilts as it zooms in instead of snapping straight
+     the instant the lightbox copy appears. Reversed on close. */
+  rotate: 0deg;
+  transition: left 0.6s cubic-bezier(0.65, 0, 0.35, 1), top 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    width 0.6s cubic-bezier(0.65, 0, 0.35, 1), height 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    rotate 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* "Locked area" style message for the under-construction island — plain
+   bold text straight over the scene, like a game's "you cannot access
+   this area yet" prompt, no background shape. Pops up briefly then fades
+   back out on its own (see initConstructionToggle in script.js). */
+.coming-soon-toast {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  top: 30%;
+  width: 320px;
+  max-width: 80vw;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s ease;
+  /* One soft shadow cast by the message as a whole (its combined text
+     silhouette), rather than a text-shadow outlining each letter. */
+  filter: drop-shadow(0 0 30px rgba(10, 6, 4, 0.95)) drop-shadow(0 0 14px rgba(10, 6, 4, 0.95));
+}
+
+.coming-soon-toast.is-visible {
+  opacity: 1;
+}
+
+.coming-soon-title {
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.coming-soon-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #fff;
+}
+
+/* ============================================
+   Experience + Skills — pinned forest scene
+   ============================================ */
+/* The track is the actual scrollable distance: 100vh reserved for the
+   pinned viewport itself, plus --forest-pin-duration of extra height the
+   user has to scroll through while forest-pin-stage stays stuck. Once
+   they've scrolled past all of it, the stage's sticky positioning runs out
+   and the page continues normally into My Story. */
+.forest-pin-track {
+  position: relative;
+  height: calc(100vh + var(--forest-pin-duration));
+}
+
+.forest-pin-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* One shared backdrop for both sections, rather than one each.
+   background-position-x reads --forest-pan-x, driven continuously by scroll
+   position through .forest-pin-track (js/script.js), so 0% (Experience at
+   rest) sits flush with the image's left edge and 100% (Skills at rest)
+   flush with its right edge — the full width of the image is traversed
+   across the pin. background-position-y stays bottom-anchored so the
+   ground/grass line — and anything standing on it, like the signpost —
+   stays in frame regardless of viewport height.
+
+   The size is `auto 107%`: ~9.5% of the source image's own height, above
+   the treeline, is fully transparent, so a modest overscale like this eats
+   into that dead space (bottom-anchored, it comes entirely off the top)
+   rather than cropping the trees themselves — it's a bit of extra size
+   without the vertical clipping that a bigger overscale (e.g. the old 150%)
+   would cause. Width follows the image's own ~3.46 aspect, so the same
+   107% also widens the rendered image a touch, which is what gives the
+   pan a little more image to work with at each end. Even at 100% it stays
+   ~2.2x the width of a typical viewport, which is what leaves room to pan
+   at all.
+
+   `cover` + a transform (what this used to be) is what forced the crop: on
+   any viewport narrower in aspect than the image, `cover` already fits the
+   height exactly, so scaling on top of that could only overflow it. It also
+   couldn't pan the whole way — it scaled a viewport-sized box whose right
+   third was then clipped away by .forest-pin-stage's overflow: hidden, so
+   background-position-x: 100% put the image's right edge at the *box's*
+   right edge, well off-screen. Sizing the background directly makes the
+   box's right edge the viewport's right edge again, so 100% now means what
+   it says on screen. (Only an implausibly wide-and-short viewport — aspect
+   above ~3.46 — could out-run the image's width; background-color, which
+   also fills the transparent area above the treeline, covers the gap.) */
+.forest-pin-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url('../media/forest background.png');
+  background-repeat: no-repeat;
+  background-size: auto 107%;
+  background-position-x: var(--forest-pan-x, 0%);
+  background-position-y: bottom;
+  background-color: #efe2d5;
+}
+
+/* Ground decoration: stump-cropped.png (stump.png, cropped to its own
+   silhouette bounding box — see media/ — same "-cropped" convention as the
+   DP World/Philips logos) overlaid pixel-for-pixel onto its flatter
+   counterpart already painted into forest background.png (bounding box read
+   off that image's own pixels: roughly 1508,428 to 1723,553 of its
+   1997x577). Positioned in vh (not vw or %) because the background itself
+   is scaled by height alone (background-size: auto 107% above) — its
+   rendered width is a pure function of viewport height and the image's own
+   aspect ratio, so vh is the only unit that tracks it at every viewport
+   width. .stump-group carries this box plus --forest-pan-offset-px (the
+   signpost's variant, not the Skills-mirrored one, since its authored
+   position is measured against the pan's progress-0 frame) for all three
+   layered images at once, so they never drift apart; each image below is
+   positioned relative to the group instead of the stage. Lives directly on
+   .forest-pin-stage, a sibling of #experience/#skills, not inside either —
+   so it's never touched by their opacity cross-fade or is-inactive-layer
+   pointer-events toggling, staying fully visible throughout like the
+   ground itself. Left with pointer-events auto (the default) specifically
+   so hovering anywhere on the stump's silhouette — not just the axe — can
+   trigger .stump-axe's float below.
+
+   The box is bigger than just the stump's own footprint: it's the union of
+   that footprint with the axe's *floated* bounding box (rotated 82deg,
+   scaled 1.5x, translated to a (-12vh, -14vh) screen-space shift — see
+   .stump-group:hover .stump-axe below), computed so that once hovering
+   lifts the axe up, moving the cursor onto its new floating position
+   (which is now empty space above the stump, not covered by the stump's
+   own box) doesn't un-hover .stump-group and drop the axe back down.
+   Concretely: floated axe bbox works out to roughly (0.03vh, -38.48vh) to
+   (30.19vh, -1.22vh) relative to the stump's own top-left, versus the
+   stump's own (0,0)-(34.93,20.29) — since the floated box no longer
+   extends left of the stump (only above it) the union's x-range is just
+   the stump's own (0,34.93), so only *top* needs shifting (38.48vh) and
+   *height* growing by the same amount — left/width are back to matching
+   the stump exactly. Every child below has its own top shifted by that
+   same +38.48 (and left unchanged, back to 0) to land back at its
+   original on-screen spot despite the group's new, taller origin. */
+.stump-group {
+  position: absolute;
+  left: 275.61vh;
+  top: 30.97vh;
+  width: 34.93vh;
+  height: 58.77vh;
+  /* #experience/#skills (.forest-pin-layer) are position:absolute, inset:0,
+     pointer-events:auto, and z-index:auto — since .forest-pin-layer never
+     sets its own z-index, it doesn't open a new stacking context, so its
+     bare (mostly-transparent) section box shares this same stacking level
+     as .stump-group and, being later in source order, would otherwise
+     paint on top and swallow the hover before it ever reaches the stump.
+     z-index: 1 only needs to clear that auto/0 level, not the deliberately-
+     elevated interactive elements inside those sections (signpost
+     hitzones, description panels, etc. run z-index 3+), so those stay on
+     top of the stump exactly as before. */
+  z-index: 1;
+  transform: translate(var(--forest-pan-offset-px, 0px), 0);
+  cursor: pointer;
+}
+
+.stump-overlay {
+  position: absolute;
+  left: 0;
+  top: 38.48vh;
+  width: 34.93vh;
+  height: 20.29vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* axe.png lodged in the stump's top surface, positioned/rotated by eye
+   against the stump's rendered top surface (blade-end anchored into the
+   wood, handle leaning up and to the right). Coordinates are relative to
+   .stump-group (16.83vh unchanged left, 25.14vh = -13.34 + 38.48 — the
+   +38.48 being the group's own origin shift described above, so this
+   still lands at the same on-screen spot the group wrapper always used).
+   rotate/scale are the standalone CSS Transforms Level 2 properties rather
+   than folded into `transform`, so the click-activated float animation
+   (which animates the separate `translate` property below) never has to
+   fight them for the same property — `transform` itself is left free here
+   specifically so the activated state can use it for a plain translate
+   lift (see below) without that fighting the float animation's
+   `translate` either. transform-origin stays the blade's embed point at
+   rest (14% 91%) so the resting tilt still reads as anchored into the
+   wood; activation switches it to center so the 90° turn spins the axe in
+   place instead of swinging it across the scene around that off-center
+   pivot. */
+.stump-axe {
+  position: absolute;
+  left: 16.83vh;
+  top: 25.14vh;
+  width: 22.68vh;
+  height: 17.12vh;
+  z-index: 1;
+  pointer-events: none;
+  rotate: -8deg;
+  scale: 1;
+  transform: translateY(0);
+  transform-origin: 14% 91%;
+  transition: rotate 0.5s ease, scale 0.5s ease, transform 0.5s ease, transform-origin 0.5s ease;
+}
+
+/* Hovering the stump's silhouette, the axe, or the front bark slice all
+   bubble up to .stump-group (the pointer-events:auto ancestor) and apply a
+   small "in contact" nudge, nothing more — just enough to read as
+   interactive without giving away the full reveal below. rotate and
+   transform-origin are left alone here (only scale and transform are
+   set), so the resting -8deg tilt and blade-anchored pivot are unchanged;
+   this is purely a size bump plus a small vertical lift. */
+.stump-group:hover .stump-axe {
+  scale: 1.2;
+  transform: translateY(-15.5px);
+}
+
+/* The full reveal below — 90 degree turn, 1.5x scale, and the float up
+   above the stump — used to fire on hover; it now fires on click instead
+   (see initStumpAxe in script.js, which adds .is-activated to .stump-group
+   on click and removes it on the next click anywhere outside
+   .stump-group), so the big animation reads as a deliberate action rather
+   than something you stumble into just by hovering near the stump.
+
+   The local translate value carries over unchanged from the previous
+   hover-driven version of this rule and still solves the same equation:
+   per the CSS Transforms Level 2 spec the independent rotate/scale/
+   translate properties apply before the `transform` property's own
+   function list, and the rest state's off-center rotation pivot (14% 91%,
+   the blade) versus this rule's centered one (50% 50%) shifts the
+   rendered bounding box independent of the underlying position — both
+   corrections were solved for and verified against the real element to
+   land on an exact (6vh, -14vh) screen-space shift from the resting
+   position.
+
+   pointer-events: auto overrides the base rule's none specifically so a
+   click landing on the now-risen, visually-floating axe still resolves to
+   an element inside .stump-group's own subtree — without it, the click-
+   outside listener in script.js would see that click as having missed
+   .stump-group's own (unchanged, stump-sized) box, and immediately
+   deactivate the very thing the click just landed on. This rule and the
+   hover one above share equal selector specificity, so where both would
+   otherwise set the same property (scale, transform) this one wins simply
+   by coming second — activation always overrides the plain hover nudge. */
+.stump-group.is-activated .stump-axe {
+  rotate: 82deg;
+  scale: 1.5;
+  transform: translate(-9.48vh, -4.66vh);
+  transform-origin: 50% 50%;
+  pointer-events: auto;
+  animation: stump-axe-float 6s ease-in-out infinite;
+}
+
+@keyframes stump-axe-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -1.2vh; }
+}
+
+/* stump-cropped-sliced-gray bit.png — stump-overlay's own source render with
+   its top 81px (the flat cut top surface + rim) cropped away, everything
+   below pixel-identical to stump-overlay (verified by sampling both
+   bitmaps: row N of this PNG matches row N+81 of stump-cropped.png), and
+   otherwise sharing the same left/right crop — so it shares stump-overlay's
+   left/width (0/34.93vh of .stump-group), but its *top* has to land 81px
+   of that same px-per-vh scale below stump-overlay's own top (38.48 + 81
+   * 20.29/660 ≈ 40.97vh), aligning the two images' shared base/roots exactly rather than
+   their tops. Given a higher z-index than stump-axe so the trunk's front
+   bark draws over the axe — hiding whatever part of it "enters" the wood
+   below the rim, while leaving the rim/top-surface area (only in the
+   stump-overlay layer beneath, since this crop doesn't cover it) free for
+   the blade to sit on top of — without this the axe just reads as pasted
+   on top of the stump instead of stuck into it. */
+.stump-front-slice {
+  position: absolute;
+  left: 0;
+  top: 40.97vh;
+  width: 34.93vh;
+  height: 17.80vh;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Big rock already painted into forest background.png, bottom-left corner
+   (bounding box read off that image's own pixels: roughly 0,365 to 112,480
+   of its 1997x577 — flush with the image's left edge, which is why it's
+   only ever visible while Experience is at rest). Converted to vh the same
+   way stump-overlay is, and for the same reason: lives directly on
+   .forest-pin-stage, a sibling of #experience/#skills, so it isn't touched
+   by their opacity cross-fade, and carries --forest-pan-offset-px so it
+   stays glued to the rock as the scene pans instead of drifting off it.
+   Unlike stump-overlay this is interactive (not pointer-events: none) —
+   it's an invisible hover target, not a decoration, so initRockLizard
+   (js/script.js) can catch the hover and play lizard.gif over it. */
+.rock-hitzone {
+  position: absolute;
+  left: 0;
+  top: 60.69vh;
+  width: 20.77vh;
+  height: 21.33vh;
+  z-index: 0;
+  cursor: pointer;
+  transform: translate(var(--forest-pan-offset-px, 0px), 0);
+}
+
+/* Applied by initRockLizard (js/script.js) for COOLDOWN_MS after each
+   activation — actually stops the hitzone from receiving pointer events at
+   all, rather than just timestamp-guarding the handler, so a cursor
+   re-crossing the hitzone's edge mid-cooldown (chasing the lizard as it
+   climbs above the hitzone's own box, or just hand tremor) can't retrigger
+   or restart the strike. */
+.rock-hitzone.is-cooldown {
+  pointer-events: none;
+}
+
+/* lizard.gif overlay inserted over .rock-hitzone on hover (see
+   initRockLizard) — cropped via object-fit: cover rather than stretched,
+   since the GIF's own 420x240 frame isn't the same proportions as this box.
+   Sized to 70% of the hitzone's own box and centered on the same point
+   (rather than sharing its box outright), so the lizard reads as a small
+   creature on the rock instead of a creature-sized-to-the-rock; raised 8vh
+   off the hitzone's own top on top of that so the climb starts from behind
+   the rock and crests over its peak, rather than climbing the empty ground
+   in front of it. */
+.rock-lizard-gif {
+  position: absolute;
+  left: 0.12vh;
+  top: 57.93vh;
+  width: 14.54vh;
+  height: 14.93vh;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+  transform: translate(var(--forest-pan-offset-px, 0px), 0);
+}
+
+/* Experience and Skills stack directly on top of each other, both filling
+   the stage, and cross-fade during the pan's active zone (--layer-opacity,
+   set per-element by js/script.js, directly scroll-linked — no CSS
+   transition here, since that would fight a value already being updated on
+   every scroll tick rather than smooth it) rather than one scrolling the
+   other out of view — that's what makes this read as one continuous pinned
+   scene instead of two sections. is-inactive-layer drops pointer-events
+   once a layer's faded out so its hidden content (the signpost hitzones,
+   skill tags) can't be touched. padding-top gives the title clearance under
+   the fixed header, which — unlike in normal scroll — this layer can end up
+   sitting directly below at any point during the pin, not just once while
+   scrolling past. */
+.forest-pin-layer {
+  position: absolute;
+  inset: 0;
+  padding-top: calc(var(--header-h) + 40px);
+}
+
+.forest-pin-layer.is-inactive-layer {
+  pointer-events: none;
+}
+
+/* Cross-fade applies to everything in the layer except the signpost (the
+   wooden post + hanging signs, stays fully visible instead of fading out
+   with the rest of Experience), .skills-scene (the rock/figurines/map
+   ground props), and .experience-description (the job-detail note) — the
+   first two already arrive via their own translateX pan
+   (--forest-pan-offset-skills-px, script.js), sliding in from off-screen
+   right as the pan progresses, so stacking an opacity ramp on top just
+   made them fade in translucent while they slid rather than arriving
+   fully solid. They're off-screen (not just transparent) for as long as
+   Experience is showing, so skipping the fade here doesn't risk them
+   showing up early. The note is excluded for a different reason: it's
+   auto-closed via its own slide-away well before the fade would reach it
+   (see the forestPinProgress check in onScroll, js/script.js), so this
+   opacity would only ever apply while it's still fully visible anyway —
+   fading it AND sliding it away at once read as it fighting itself. */
+.forest-pin-layer > *:not(.signpost-scene):not(.skills-scene):not(.experience-description) {
+  opacity: var(--layer-opacity, 1);
+}
+
+/* Experience anchors its own content (title near the top via padding-top
+   above, signpost near the bottom via .signpost-scene's own bottom: 6%).
+   Skills now holds only its own title block, so it's left as the same
+   plain block flow — the title sits top-left, over the sky visible above
+   the treeline at Skills' pan position, matching Experience. */
+
+/* Shared by both Experience's and Skills' title blocks — wraps title +
+   divider so the divider (width: fit-content via inline-flex) can be
+   centered under just the title's own width, not the full section.
+   Raised 90% (of its own height) off its normal top-anchored spot, per
+   design request — shared so Skills' title sits at the same height as
+   Experience's. */
+.forest-scene-head {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: clamp(20px, 5vw, 56px);
+  transform: translateY(-90%);
+}
+
+/* Experience's title (not Skills', which shares this same class but sits at
+   its own resting spot once the pan completes) also carries
+   --forest-pan-offset-px, so it pans away with the ground — like the
+   signpost — instead of staying screen-fixed while the scene moves under
+   it. */
+#experience .forest-scene-head {
+  transform: translate(var(--forest-pan-offset-px, 0px), -90%);
+}
+
+/* Skills' title carries the mirrored offset (see --forest-pan-offset-skills-px
+   above) so it comes in from off-screen right as the pan brings it into
+   view, instead of just fading in at a fixed spot. */
+#skills .forest-scene-head {
+  transform: translate(calc(var(--forest-pan-offset-skills-px, 0px) + 50% + 60px), calc(-95% - 20px));
+}
+
+/* Ground props for Skills — rock.png/figurines.png/map 1.png, all 1536x1024
+   (3:2), positioned relative to the stage as simple percentages/vh rather
+   than the stump's pixel-matched vh scale (nothing here has to align with a
+   feature already baked into forest background.png, so there's no fixed
+   background pixel to chase). One shared wrapper carries the single
+   translate — same reasoning as .stump-group sharing one offset across its
+   three children — except this one carries
+   --forest-pan-offset-skills-px (the mirrored offset, see above) since
+   these are Skills' own decorations: they should arrive from off-screen
+   right with the rest of Skills' content, not stay glued to one background
+   pixel across the whole pin the way the stump does. Living inside #skills
+   itself (rather than directly on .forest-pin-stage like .stump-group) also
+   means they inherit the cross-fade opacity and is-inactive-layer pointer-
+   events for free. */
+.skills-scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translate(var(--forest-pan-offset-skills-px, 0px), 0);
+}
+
+/* Rock sits right of the stump, roughly at the same ground line. Nudged
+   right of its %-based position via transform (rather than eating further
+   into the % itself) so the shift tracks a fixed fraction of the rock's own
+   rendered width at every viewport size — the mobile media query below
+   cancels it again since there's no margin left to give at that width. */
+.skills-rock {
+  position: absolute;
+  right: 3%;
+  bottom: 9vh;
+  width: clamp(220px, 23vw, 335px);
+  aspect-ratio: 1536 / 1024;
+  filter: drop-shadow(0 14px 18px rgba(30, 25, 15, 0.28));
+  transform: translate(calc(clamp(220px, 23vw, 335px) / 2 - 116px), -55px);
+}
+
+/* The three figurines, standing on top of the rock — sized and centered
+   against .skills-rock's own box so the pair scale together. Shifted by the
+   same calc() as .skills-rock (half of *the rock's* width, not its own) so
+   the two move as one unit instead of drifting apart.
+
+   The offset lives entirely in right/bottom (folded into the calc()s below)
+   rather than in `transform`, so `transform` stays at a true, unused zero at
+   rest — exactly like .stump-axe, whose position is entirely left/top, with
+   `transform: translateY(0)` a pure placeholder. This isn't just tidiness:
+   `scale` (per the CSS Transforms Level 2 composition order) is applied
+   *inside* the legacy `transform` property, not outside it — so any offset
+   baked into `transform` gets multiplied by whatever `scale` currently is.
+   An earlier version kept the offset in `transform` via a --skills-prop-base
+   custom property; at rest (scale: 1) that's invisible, but on hover
+   (scale: 1.2) the figurines' own sizeable offset (~111px) was amplified by
+   ~20%, reading as an unprompted drift to the right — bigger on the
+   figurines than the map only because the figurines' own offset happens to
+   be much larger, not because anything else differed between them. Keeping
+   `transform` at a real zero at rest means hover/.is-activated below only
+   ever add a *small* lift, so this same effect on them is imperceptible
+   (same as it is on .stump-axe's own hover/activated lifts, which have
+   always worked this way).
+
+   .skills-scene sets pointer-events: none on the whole overlay so the rock
+   and background pan-through stay click-through; auto here re-enables just
+   this element. */
+.skills-figurines {
+  position: absolute;
+  right: calc(3% + 2.5vw - (clamp(220px, 23vw, 335px) / 2 - 36px) + 60px);
+  bottom: calc(28vh + 28px);
+  width: clamp(175px, 18vw, 265px);
+  aspect-ratio: 1536 / 1024;
+  scale: 1;
+  transform: translateY(0);
+  transition: scale 0.5s ease, transform 0.5s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Map + compass, laid flat on the ground in front of the stump. Left shifted
+   in from 33% to 28% versus its original (smaller) size so the bigger box
+   keeps roughly the same gap to the stump instead of biting further into it.
+   Same rest/interaction split as .skills-figurines above. */
+.skills-map {
+  position: absolute;
+  left: calc(28% + 50px);
+  bottom: calc(4vh - 55px);
+  width: clamp(231px, 24.15vw, 352px);
+  aspect-ratio: 1536 / 1024;
+  filter: drop-shadow(0 10px 14px rgba(30, 25, 15, 0.25));
+  scale: 1;
+  transform: translateY(0);
+  transition: scale 0.5s ease, transform 0.5s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Hover nudge — same scale as .stump-group:hover .stump-axe, but lifted a
+   bit higher than the axe's own -7px per design request. */
+.skills-map:hover,
+.skills-figurines:hover {
+  scale: 1.2;
+  transform: translateY(-24px);
+}
+
+/* Full reveal, click-toggled the same way as .stump-group.is-activated
+   .stump-axe (see initSkillsPropToggle, js/script.js) — same base 1.5x scale
+   and the same continuous bob (@keyframes stump-axe-float, shared with the
+   axe) once risen, just without the 82deg turn. Safe to share that
+   keyframes' `translate` animation here — `translate` is otherwise
+   completely unused by these two (see the comment on .skills-figurines
+   above), same as it is for .stump-axe. Scale and lift height both differ
+   per element (the figurines rise a bit bigger than the map, and the map
+   floats much higher than the figurines), so neither is shared between
+   them. */
+.skills-map.is-activated,
+.skills-figurines.is-activated {
+  z-index: 5;
+  animation: stump-axe-float 6s ease-in-out infinite;
+}
+
+.skills-map.is-activated {
+  scale: 1.5;
+  transform: translate(100px, -25vh);
+}
+
+.skills-figurines.is-activated {
+  scale: 1.7;
+  transform: translate(-30px, -9vh);
+}
+
+/* Skills showcase: the selected category's skill list, revealed as pill
+   tags on the left side of the scene when the axe/map/figurines is clicked
+   (see initSkillsShowcase, js/script.js, which fills this in and toggles
+   is-visible — empty and untransitioned otherwise). Positioned independent
+   of the ground props' own left/right/bottom math above; this is the one
+   piece of Skills content meant to read as a panel of information rather
+   than a prop sitting in the scene. pointer-events: none because these are
+   informational labels, not controls (per design request) — a click that
+   lands on the panel should still count as "outside" the open trigger and
+   close it, not get swallowed here. */
+.skills-pills {
+  position: absolute;
+  left: clamp(20px, 5vw, 56px);
+  top: 54%;
+  transform: translateY(-50%);
+  width: min(42vw, 460px);
+  max-width: calc(100% - clamp(40px, 10vw, 112px));
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skills-pills.is-visible {
+  opacity: 1;
+}
+
+.skills-pills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each pill sizes to its own label (inline-flex, no fixed width) so short
+   ("AGILE") and long ("Structured Problem-Solving") skills both read
+   naturally, and the list wraps row to row on its own via the list's own
+   flex-wrap rather than anything per-pill. Starts invisible/offset and
+   plays its own entrance once mounted — see the animation-delay stagger
+   set per-pill in initSkillsShowcase.
+
+   Border is two-toned (lighter top, darker bottom) and paired with an inset
+   top highlight + bottom-weighted drop shadow so the pill reads as a small
+   carved/inlaid token sitting on the scene rather than a flat UI chip —
+   kept subtle deliberately, no gradient fill or glassy blur behind it. */
+.skill-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(236, 223, 198, 0.95);
+  border: 2px solid rgba(94, 78, 42, 0.38);
+  border-bottom-color: rgba(94, 78, 42, 0.56);
+  box-shadow:
+    0 5px 11px rgba(30, 25, 15, 0.16),
+    inset 0 1px 0 rgba(255, 248, 232, 0.6);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: skill-pill-in 0.5s ease forwards;
+}
+
+@keyframes skill-pill-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Exit mirror of the entrance above — added by playPillsExit()
+   (js/script.js) when a category is deactivated, staggered so the last
+   pill to arrive is first to leave. Overrides the base .skill-pill
+   animation via the two-class selector's higher specificity. */
+.skill-pill.is-leaving {
+  /* "both" (not just "forwards"): the base rule's own opacity:0 would
+     otherwise show through during each pill's staggered delay, flashing it
+     invisible before its fall even starts. "backwards" holds the animation's
+     from-state (opacity:1) for the wait instead. */
+  animation: skill-pill-out 0.35s ease-in both;
+}
+
+@keyframes skill-pill-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+.skill-pill-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1;
+  color: #453d34;
+  white-space: nowrap;
+}
+
+/* Styled to match .projects-title so all three image-banner sections read
+   as one system. position: relative anchors .skills-category-tag below —
+   it's positioned entirely outside the title's own text flow now (see that
+   rule's comment for why), so this needs to be its containing block. */
+.forest-scene-title {
+  position: relative;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #453d34;
+}
+
+/* Category tag ("Hard"/"Professional"/"Soft") that fills in to the left of
+   the static "Skills" title once a category's opened — see
+   initSkillsShowcase (js/script.js), which sets the text and a
+   length-proportional --tag-duration, then toggles is-writing to (re)start
+   the reveal. Un-inherits .forest-scene-title's uppercase/letter-spacing — a
+   handwriting face read in small caps with wide tracking wouldn't look
+   handwritten at all.
+
+   position: absolute, anchored by right (against .forest-scene-title, see
+   position: relative above) rather than sitting inline before "Skills" —
+   an earlier version did the latter, and even though it was invisible at
+   rest (0 width), its box still grew to the word's full width the instant
+   a category opened, shoving "Skills" itself sideways in the same frame.
+   Taking the tag out of the title's text flow entirely means "Skills"
+   — and everything anchored off it — never moves, regardless of which
+   word is showing or what point the reveal is at. right: calc(100% + 28px)
+   parks it a deliberate gap to the left of the title's own box (100% of
+   the title's width = exactly its left edge), not hugging "Skills".
+
+   The "written by hand" illusion is a clip-path reveal rather than an
+   actual per-letter stroke trace (that would need real path data for each
+   glyph): the box is always its full natural size (shrink-to-fit content,
+   since only `right` is set) — clip-path just uncovers it left-to-right,
+   which unlike animating width/max-width never changes the box's own
+   footprint, so nothing here can shove neighboring layout around even
+   mid-animation. The ::after pen tick tracks the same reveal boundary on
+   the same --tag-duration timing so the "nib" arrives exactly as the last
+   letter does. */
+.skills-category-tag {
+  --tag-duration: 0.6s;
+  --tag-duration-out: 0.36s;
+  position: absolute;
+  right: calc(100% + 28px);
+  top: 50%;
+  white-space: nowrap;
+  font-family: 'Amatic SC', cursive;
+  font-weight: 700;
+  font-size: 2.2em;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #a9632f;
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(-50%) rotate(-3deg);
+  transform-origin: right center;
+}
+
+/* "Professional" is three times longer than "Hard"/"Soft" — sized down a
+   notch on its own rather than shrinking the tag globally for the other
+   two, which read fine at the base size. */
+.skills-category-tag[data-category="map"] {
+  font-size: 1.2em;
+  right: calc(100% + 15px);
+  transform: translateY(-50%) rotate(0deg);
+}
+
+.skills-category-tag.is-writing {
+  animation: skills-tag-reveal var(--tag-duration) linear forwards;
+}
+
+/* Exit mirror of the write-in above, played in the same left-to-right
+   direction: clips away from the left edge growing rightward, so the word
+   disappears letter by letter in the same direction it was written in —
+   just without the pen tick riding along (no ::after rule targets
+   is-erasing; see that rule below). Runs on its own, faster
+   --tag-duration-out (set alongside --tag-duration in renderCategoryTag,
+   js/script.js) rather than the write-in's duration — otherwise
+   "Professional", the only word long enough to clear both durations'
+   floors, would take noticeably longer to erase than to write. */
+.skills-category-tag.is-erasing {
+  animation: skills-tag-erase var(--tag-duration-out) linear forwards;
+}
+
+@keyframes skills-tag-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+@keyframes skills-tag-erase {
+  from {
+    clip-path: inset(0 0% 0 0%);
+  }
+  to {
+    clip-path: inset(0 0% 0 100%);
+  }
+}
+
+/* Small pen tick riding the reveal boundary — present while the word is
+   still being uncovered, gone once it's fully written. Its own left
+   position is keyframed 0%→100% in step with the clip-path above (same
+   duration, same linear timing) so it tracks the boundary rather than
+   sitting at a fixed spot. */
+.skills-category-tag::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 0;
+  width: 2px;
+  height: 80%;
+  background: currentColor;
+  opacity: 0;
+}
+
+.skills-category-tag.is-writing::after {
+  animation: skills-tag-pen var(--tag-duration) linear forwards;
+}
+
+@keyframes skills-tag-pen {
+  0% {
+    left: 0%;
+    opacity: 0.85;
+  }
+  88% {
+    left: 100%;
+    opacity: 0.85;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* Same line-diamond-line as .projects-divider, centered under the title by
+   .forest-scene-head's align-items: center. */
+.forest-scene-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+/* Signpost: signpost_composite.png (1448x1086 natural size) is a single
+   pre-rendered flattening of the post and both signs, already drawn with
+   the signs in front of the beam. The two hitzones sit over the DP World
+   and Philips boards (coordinates read off the composite's own pixels, see
+   js/script.js) and swap the image for that sign's shake GIF on touch. */
+.signpost-scene {
+  position: absolute;
+  left: 3%;
+  bottom: 6%;
+  width: clamp(392px, 42.74vw, 645px);
+  aspect-ratio: 1448 / 1086;
+  z-index: 1;
+  /* Lowered 10% (of its own height) off its normal bottom-anchored spot,
+     per design request, plus --forest-pan-offset-px so it stays glued to
+     the same spot in the ground as the background pans instead of
+     floating fixed on screen above it. */
+  transform: translate(var(--forest-pan-offset-px, 0px), 10%);
+}
+
+.signpost-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Strike GIFs play on a separate layer stacked on top of the static
+   composite, rather than replacing its src — see playStrike in
+   js/script.js. The static image is never hidden or cleared, so there's
+   nothing showing through beneath the GIF layer for a frame to "blink" to;
+   each strike gets a freshly created layer that's only inserted once its
+   first frame has actually loaded, so the swap from static (or a previous
+   strike) to the new GIF is instant with no blank frame either. */
+.signpost-strike-layer {
+  z-index: 1;
+}
+
+.signpost-hitzone {
+  position: absolute;
+  left: 46%;
+  width: 41.5%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 2;
+}
+
+.signpost-hitzone-top {
+  top: 27.5%;
+  height: 15.35%;
+}
+
+.signpost-hitzone-bottom {
+  top: 51.25%;
+  height: 14.65%;
+}
+
+/* Job-detail panel: sits on the open right-hand side of the scene (the
+   signpost and title both live on the left) so it never overlaps them.
+   Hidden by default — only initExperienceSignposts's click handler (not
+   the hitzones' hover, which is reserved for the shake GIF) adds
+   is-visible. This element is now just an invisible positioning shell —
+   no background of its own — so its transform can carry the live,
+   un-transitioned pan-x tracking (see below) without also dragging the
+   background/text along a transition; those live on
+   .experience-description-slide instead, which is what actually paints
+   the note and slides. aspect-ratio locks the box to the image's own
+   1536:1024 (3:2) shape at every width, which .experience-description-slide
+   (inset: 0, so sized identically) inherits. */
+.experience-description {
+  position: absolute;
+  z-index: 5;
+  right: clamp(-329px, calc(-23vw + 80px), -199px);
+  top: 50%;
+  /* Capped by 117vh (not just vw) too — at 3:2, that keeps the panel's
+     height (width / 1.5) from ever exceeding 78% of the viewport's own
+     height, so a short/wide window can't grow it past the pinned stage's
+     100vh and get its top/bottom clipped by that stage's overflow: hidden. */
+  width: clamp(720px, min(94vw, 146vh), 1150px);
+  aspect-ratio: 3 / 2;
+  pointer-events: none;
+  /* No opacity/fade here — .experience-description-slide sliding up from
+     translateY(100vh) is the only entrance effect now; this shell is only
+     ever hidden by that slide sitting off-screen, never invisible while
+     in place. Carries --forest-pan-offset-px like the signpost and title,
+     so it stays put relative to them — one of "the assets" in the scene,
+     not a screen-fixed overlay. transform isn't in a transition: the
+     signpost/title move on the pan with no easing of their own, and a
+     transition here would fight that, showing up as a laggy "catch-up"
+     any time the pan changes while the panel's open. The -50% Y half is
+     the vertical centering (paired with top: 50% above), identical in
+     both this and the .is-visible rule below. */
+  transform: translate(calc(var(--forest-pan-offset-px, 0px) + 18px), -50%);
+}
+
+.experience-description.is-visible {
+  /* Not pointer-events: auto here (previously was) — this shell is the same
+     big, mostly-transparent-glow rectangle as .experience-description-slide
+     (see the fuller explanation there), so re-enabling hit-testing on it
+     re-created the exact dead zone -slide's pointer-events: none was meant
+     to remove: it sat on top of both signs' hitzones, silently swallowing
+     clicks meant for whichever sign wasn't currently open. -inner and
+     -close re-enable pointer-events for themselves regardless of this. */
+  transform: translate(var(--forest-pan-offset-px, 0px), -50%);
+}
+
+/* The actual visible note: paints the paper-note.png background (moved
+   here from .experience-description above) and holds the close button
+   and content, so the art and the text slide up together as one piece
+   rather than the background fading in place while just the text moves.
+   `position: absolute; inset: 0` matches the panel's own box exactly, so
+   .experience-description-close / -inner's percentage positions still
+   resolve the same as if this wrapper weren't here (a transformed element
+   becomes its descendants' containing block, same as position: relative
+   would) — background-size shows the whole image with no cropping or
+   letterboxing (the image's own painted note only occupies its center,
+   roughly 23%-77% horizontally, 8%-88% vertically, with a soft
+   transparent-edged glow filling the rest that blends into the forest
+   photo behind it). */
+.experience-description-slide {
+  position: absolute;
+  inset: 0;
+  /* The panel's own box is much bigger than the paper actually painted on
+     it (background-size: 100% 100% deliberately leaves most of the glow
+     margin transparent, per the comment above) — at the sizes this now
+     renders at, that margin's box reaches left far enough to sit on top of
+     the signpost's hitzones. pointer-events: none here lets clicks in that
+     transparent margin fall through to whatever's underneath (the other
+     sign) instead of being silently swallowed by an invisible click target;
+     -close and -inner re-enable it for the parts that are actually
+     interactive/painted. */
+  pointer-events: none;
+  background-image: url('../media/paper note.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* 100vh rather than a small nudge: guarantees it starts fully below the
+     viewport's bottom edge regardless of where the (vertically centered)
+     panel sits or how tall it is, so it reads as sliding up from off-
+     screen rather than just settling in from slightly below. */
+  transform: translateY(100vh);
+  /* This is the state transitioned TO on close (per the CSS Transitions
+     spec, the end state's own `transition` is what governs), so this is
+     the exit curve: an "ease-in-back" dips slightly negative (up) before
+     accelerating down and off-screen, rather than sliding straight down. */
+  transition: transform 0.55s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+
+.experience-description.is-visible .experience-description-slide {
+  transform: translateY(0);
+  /* The state transitioned TO on open — kept as the smoother ease-out
+     slide-up, no overshoot. */
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fits the text to the inner 70% of the painted paper itself (measured via
+   its actual alpha channel: opaque from ~22.66%-76.17% width, ~8.2%-89.55%
+   height of the full image — the glow around it is mostly transparent, so
+   70% of the whole panel would sit half in that glow), not 70% of the
+   panel/image's full bounding box. Positioned absolutely rather than
+   padded: percentages on an absolutely positioned descendant correctly
+   resolve against *this* panel's own box (left/right against its width,
+   top/bottom against its height), which plain padding on
+   .experience-description itself does not. */
+.experience-description-inner {
+  position: absolute;
+  top: 20.4%;
+  left: 30.7%;
+  right: 31.9%;
+  bottom: 22.7%;
+  /* Re-enables clicks/hover within the actually-painted content area that
+     .experience-description-slide now opts out of wholesale (see there) —
+     this is the logo/title/body text, not the transparent glow. */
+  pointer-events: auto;
+  /* No overflow: hidden — it clipped the DP World logo, which is nudged
+     left of this box's own edge via a negative margin (see
+     .experience-description-logo.is-dp-world). */
+}
+
+.experience-description-close {
+  position: absolute;
+  /* % of the box, not px, to land just past the painted note's own top-right
+     border regardless of the panel's current size (see .experience-description). */
+  top: 11%;
+  right: 26%;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: #9c8f7c;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  /* Same re-enable as -inner above — .experience-description-slide opts the
+     whole (mostly transparent) panel box out of pointer-events. */
+  pointer-events: auto;
+}
+
+.experience-description-close:hover {
+  color: #453d34;
+}
+
+/* Date range for the role (e.g. "Jun 2023 – Aug 2023"), set from each
+   signpost's data-date (see setContent in initExperienceSignposts,
+   js/script.js). A sibling of -inner rather than a child of it — positioned
+   in % of the panel's own box the same way .experience-description-close
+   is, landing higher up and clearly separated from the logo/title/body
+   group below (-inner's own box starts at top: 20.4%) rather than reading
+   as one more line stacked directly above the logo. left matches -inner's
+   own 30.7% so it still aligns with that group's left edge. */
+.experience-description-date {
+  position: absolute;
+  top: 14%;
+  left: 27%;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(8px, 0.7vw, 10px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9c8f7c;
+  margin: 0;
+}
+
+/* Stands in for a text "company name" — it's the actual brand logo cropped
+   from media/DP World logo.png / philips logo.png, matching the one
+   painted on that sign, rather than typeset alongside a generic name. */
+.experience-description-logo {
+  display: block;
+  height: clamp(36px, 4.2vw, 56px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 6px;
+}
+
+/* DP World's crop (media/dp-world-logo-cropped.png) reads noticeably
+   larger than Philips' at the same height, so it's scaled down on its own
+   rather than shrinking Philips' to match (see the is-dp-world toggle in
+   initExperienceSignposts, js/script.js). */
+.experience-description-logo.is-dp-world {
+  height: clamp(30px, 3.6vw, 48px);
+  margin-left: -17px;
+}
+
+.experience-description-position {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #453d34;
+  margin-top: -14px;
+  margin-bottom: 8px;
+  margin-left: 60px;
+  padding-right: 20px;
+}
+
+/* Philips' logo is taller than DP World's (no .is-dp-world scale-down) and
+   its title wraps to two lines, so the shared -14px offset above isn't
+   tight enough here — pulled up further on its own. */
+.experience-description-position.is-philips {
+  margin-top: -22px;
+  margin-left: 60px;
+}
+
+.experience-description-text {
+  font-family: var(--font-body);
+  /* DP World's size — Philips always overrides this via .has-photo below,
+     so in practice this only ever renders for DP World. */
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b6255;
+  margin-top: 15px;
+  /* Widens just the right edge past .experience-description-inner's own
+     boundary — safe since that container no longer clips its content. */
+  margin-right: -25px;
+  /* Safety net, not the primary fit mechanism (the panel above is sized to
+     fit the real copy without this ever kicking in at normal viewport
+     sizes) — only engages on an extreme narrow+short combination the panel
+     sizing can't cover, scrolling just the copy itself rather than
+     spilling past the paper or getting silently clipped. Scoped to this
+     element alone (not .experience-description-inner, which deliberately
+     stays overflow: visible so the DP World logo's negative margin isn't
+     re-clipped). */
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.experience-description-text p {
+  margin: 0;
+}
+
+.experience-description-text p + p {
+  margin-top: 12px;
+}
+
+/* Philips only (toggled in setContent, js/script.js): its keepsake photo
+   sits over the bottom-left of the note (see .experience-description-photo
+   below), so its write-up runs smaller than DP World's — enough that it
+   wraps into a shorter block and clears the photo's footprint on its own,
+   without moving or resizing the photo itself. */
+.experience-description-text.has-photo {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Philips-only keepsake photo, tucked near the note's bottom-left corner
+   like a print pinned on top of it (same "photo on the scene" idea as the
+   project write-ups' own photos), laid over the paper rather than printed
+   on it. A child of the slide (not the
+   outer shell) so it rides along with the same slide-up/down as the rest
+   of the note's content for free. Hidden for DP World via the .is-visible
+   toggle (setContent in initExperienceSignposts, js/script.js) rather than
+   a second element, since only one role's photo is ever shown at a time.
+   pointer-events: auto here re-enables hit-testing just for this element
+   (same pattern as -inner/-close below it) so it can open the same
+   click-to-enlarge lightbox as the project photos (.projects-description-image,
+   see initImageLightbox in js/script.js) — a small, tightly-bound image
+   rather than the large mostly-transparent box that caused the dead-zone
+   bug .experience-description-slide's own pointer-events: none was added
+   to fix, so re-enabling it here doesn't reintroduce that. */
+.experience-description-photo {
+  position: absolute;
+  left: 15%;
+  bottom: 4%;
+  width: 30%;
+  height: auto;
+  transform: rotate(-7deg);
+  z-index: 2;
+  opacity: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  /* No transition here — this is the state transitioned TO whenever a
+     non-Philips role opens, and per the CSS Transitions spec the end
+     state's own `transition` governs, so hiding is instant. Without this,
+     opening DP World right after Philips (openDescription has no delay the
+     way switching between signs does) showed the photo mid-fade for a
+     moment before it finished disappearing. The fade-in below is unaffected
+     — only .is-visible needs to look smooth, since that's the only
+     direction anyone's actually watching happen. */
+  transition: none;
+}
+
+.experience-description-photo.is-visible {
+  opacity: 1;
+  /* The only rule here that needs an actual transition — see the base
+     rule's comment for why it deliberately has none. */
+  transition: opacity 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .signpost-scene {
+    left: 1%;
+    bottom: 4%;
+    width: clamp(325px, 60.5vw, 464px);
+  }
+
+  /* No open right-hand space left at this width once the signpost grows
+     to ~60vw — center the panel over the scene instead of pinning it to
+     an edge it would otherwise collide with. */
+  .experience-description {
+    left: 50%;
+    right: auto;
+    top: 8%;
+    width: 84vw;
+    min-width: 0;
+    max-width: none;
+    transform: translate(calc(-50% + var(--forest-pan-offset-px, 0px)), 18px);
+  }
+
+  .experience-description.is-visible {
+    transform: translate(calc(-50% + var(--forest-pan-offset-px, 0px)), 0);
+  }
+
+  /* Below this width the map and rock's default left:28%/right:3% positions
+     converge and overlap (their clamp()s bottom out at a shared minimum
+     width well before their edges stop colliding) — pinned to opposite
+     edges instead so they hold a clear gap regardless of viewport width. */
+  .skills-map {
+    left: calc(4% + 10px);
+    bottom: calc(3% - 15px);
+    width: clamp(137px, 44.1vw, 205px);
+  }
+
+  .skills-rock {
+    right: 1%;
+    bottom: 3%;
+    width: clamp(130px, 42vw, 195px);
+    /* No spare margin left at this width for the desktop rule's extra
+       +50px nudge (it was already down to ~4px before this rule's own
+       right:1% is even factored in) — cancelled here instead of clipping. */
+    transform: translateX(0);
+  }
+
+  .skills-figurines {
+    right: calc(1% + 6vw - 2px);
+    bottom: calc(13% - 15px);
+    width: clamp(105px, 30vw, 160px);
+  }
+
+  /* 42vw of a phone-width screen is too narrow for these labels to wrap
+     usefully (most would end up one-per-row regardless) — widened to use
+     most of the available width instead. */
+  .skills-pills {
+    top: 40%;
+    width: min(78vw, 460px);
+  }
+}
+
+.timeline {
+  position: relative;
+  padding-left: 32px;
+  border-left: 2px solid #e7e1d6;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -39px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px #fff, 0 0 0 6px #e7e1d6;
+}
+
+.timeline-date {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 8px;
+}
+
+.timeline-content h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.timeline-content p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #5b6675;
+  max-width: 560px;
+}
+
+/* ============================================
+   My Story
+   ============================================ */
+.story-section {
+  /* Full-bleed, like .projects-section — same beige (#efe2d5) all the way
+     to the viewport edges, not just behind the centered content, so the
+     side gutters read as part of the section instead of the page's
+     default paper background showing through. */
+  background: #efe2d5;
+  /* Same reasoning as .projects-section's scroll-margin-top — #story's nav
+     link also relies on the native anchor jump. Negative (rather than
+     Projects' own +24px) on purpose: a smaller/negative scroll-margin-top
+     scrolls the page FURTHER down (less buffer reserved above the target),
+     carrying the jump past the skills-to-story divider banner so the title
+     lands near the top instead of the banner filling that space. */
+  scroll-margin-top: calc(var(--header-h) - 120px);
+}
+
+.story-divider {
+  display: block;
+  width: 100%;
+  /* Squashed to roughly half its natural aspect-ratio height (object-fit:
+     fill, not cover) so the full width is kept but the banner reads as a
+     slimmer strip — cover would crop the gradient and risk cutting off
+     the cream fade before it reaches .story-section's own background. */
+  height: clamp(50px, 8vw, 130px);
+  object-fit: fill;
+}
+
+.story-content {
+  max-width: 900px;
+  /* Less top padding than .section's default 120px — the divider banner
+     above already provides the visual separation from Skills, so the
+     title can sit closer under it instead of leaving a second, redundant
+     gap of empty beige. */
+  padding-top: 40px;
+  /* Also less bottom padding than .section's default 120px — trims the
+     empty beige strip below the last paragraph before the footer. */
+  padding-bottom: 48px;
+  /* .section centers this box (margin: 0 auto) — shifted left of full
+     centering, further right than the x:132px match with #experience
+     .forest-scene-title per follow-up feedback. */
+  margin-left: clamp(95px, 13.5vw, 205px);
+  margin-right: auto;
+}
+
+/* Matches .projects-title/.forest-scene-title's font treatment, but left-
+   aligned (rather than page-centered) so it lines up with .story-body's
+   own left edge below it. inline-flex + align-items: flex-start shrinks
+   this to the width of its widest child — the title text — so the
+   divider below (which stretches to fill via align-self: stretch) ends
+   up exactly as long as the title, instead of centered under it. */
+.story-head {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Closer than .section-head's shared 64px default — the divider above
+     already separates the title from the body, so the gap between title
+     and text itself can be tighter. */
+  margin-bottom: 34px;
+}
+
+.story-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #453d34;
+}
+
+/* Same line-diamond-line as .projects-divider/.forest-scene-divider, but
+   stretched to .story-head's full (title-determined) width — the two
+   lines flex to fill whatever's left on either side of the diamond,
+   rather than sitting at .divider-line's usual fixed 70px, so the whole
+   ornament's span always matches the title's own rendered length. */
+.story-title-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  align-self: stretch;
+}
+
+.story-title-divider .divider-line {
+  flex: 1 1 0%;
+  width: auto;
+  min-width: 12px;
+}
+
+.story-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 15px;
+  line-height: 2.05;
+  color: #3d4552;
+  /* Right edge lands partway between mid-screen (50vw) and the previous
+     62.5vw past the horizontal center — 56.25vw minus the same left-offset
+     .story-content/.section-head build up (.story-content's margin-left +
+     .section's own padding-left). Floored at 320px so it doesn't collapse
+     to an unreadable sliver on narrow viewports. */
+  max-width: max(320px, calc(56.25vw - clamp(95px, 13.5vw, 205px) - clamp(20px, 5vw, 56px)));
+}
+
+/* Journey/path graphic (map line option 2.png, 1024x1536) plus the three
+   story photos scattered along it, filling the open right-hand side of
+   the section — the text column stops well short of the right edge (see
+   .story-body's max-width above), leaving room for it without overlapping
+   the copy. Position/size/rotation that used to live directly on the
+   (single) icon now live here, on the shared scene, so the photos below
+   move and rotate as one piece with the path instead of drifting off it.
+   aspect-ratio (matching the art's own 1024x1536) is what lets the photos'
+   own % position values below stay pinned to the same spots on the path
+   at every viewport width, the same reasoning .projects-canvas's fixed-
+   aspect box uses for its scattered islands. */
+.story-map-scene {
+  position: absolute;
+  right: -70px;
+  top: 53%;
+  width: clamp(400px, 45vw, 560px);
+  aspect-ratio: 1024 / 1536;
+  /* transform-origin: right bottom pins that corner as the rotation's fixed
+     point — for a -4deg tilt every other corner swings inward/left from
+     there, so the bottom-right corner is always the rendered shape's
+     rightmost point, landing exactly on `right: 0`. Pivoting around the
+     right EDGE's center instead (the more obvious choice) still lets the
+     bottom-right corner swing outward past that point, overshooting the
+     viewport edge by ~20px and getting clipped by body's overflow-x:
+     hidden — confirmed by measuring the rendered bounding box. */
+  transform-origin: right bottom;
+  transform: translateY(-50%) rotate(-4deg);
+  pointer-events: none;
+}
+
+.story-map-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Slight rotation (inherited from .story-map-scene) + drop shadow
+     matches the "pinned to the scene" treatment used elsewhere (project
+     photos, experience's keepsake photo) rather than reading as a flat UI
+     icon. Scoped to just the path art, not the photos layered on top of
+     it, which carry their own shadow instead (see .story-map-photo). */
+  opacity: 0.92;
+  filter: drop-shadow(0 16px 28px rgba(60, 45, 20, 0.2));
+}
+
+/* The three photos along the path, positioned as % of .story-map-scene —
+   reference layout supplied by design. Polaroid-ish treatment (rounded
+   corners, a beige border a shade darker than the section's own
+   background so it reads as a frame rather than blending in, drop
+   shadow) rather than plain squared-off thumbnails, matching how project
+   photos elsewhere on the site are framed. */
+.story-map-photo {
+  position: absolute;
+  border-radius: 10px;
+  border: 5px solid #ddccb0;
+  box-shadow: 0 12px 22px rgba(60, 45, 20, 0.28);
+  object-fit: cover;
+  /* .story-map-scene (the containing positioned ancestor) is pointer-events:
+     none — it's just a decorative backdrop for the path art — so this has
+     to opt back in on its own to be clickable at all. Same click-to-zoom
+     lightbox as the project/experience photos (see initImageLightbox,
+     js/script.js, and .image-lightbox-img below), triggered by matching
+     this class in that shared click listener rather than anything specific
+     to this section. */
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.story-map-photo-1 {
+  left: 2%;
+  top: 3%;
+  width: 54%;
+  aspect-ratio: 1169 / 817;
+  transform: rotate(-3deg);
+}
+
+.story-map-photo-2 {
+  left: 44%;
+  top: 32%;
+  width: 44%;
+  aspect-ratio: 566 / 644;
+  transform: rotate(8deg);
+}
+
+.story-map-photo-3 {
+  left: -6%;
+  top: 58%;
+  width: 39%;
+  /* The file's real dimensions (confirmed via the loaded <img>'s own
+     naturalWidth/Height) are 1082x1302, not the 1200x1600 this was
+     originally set to — that mismatch was exactly why the lightbox zoom
+     showed beige gaps top/bottom: initImageLightbox's start rect (this
+     element's own box, forced to whatever ratio this property says) and
+     end rect (computed from the image's true natural size) disagreed, so
+     object-fit: contain on the lightbox copy had to letterbox the
+     difference for most of the transition. */
+  aspect-ratio: 1082 / 1302;
+  transform: rotate(-3deg);
+}
+
+/* Down arrow (arrow down.png, 1024x1536, same 3D-orange style as the map
+   line's own pins) closing out the path below the last photo — a child of
+   .story-map-scene rather than .story-section, so it inherits the same
+   -4deg rotation as the rest of the composition instead of sitting
+   upright against it. */
+.story-map-arrow {
+  position: absolute;
+  left: 10%;
+  top: 100%;
+  width: 15%;
+  transform: translate(-50%, -26%);
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 14px rgba(60, 45, 20, 0.25));
+  pointer-events: none;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.site-footer {
+  padding: 32px 20px;
+  font-size: 13px;
+  /* #453d34 is the site's established heading/ink brown (Projects, Story,
+     Experience/Skills titles and descriptions all use it) — reused here
+     rather than introducing a new color, with the Projects/Story section's
+     own beige (#efe2d5) as the text color for contrast against it. */
+  color: #efe2d5;
+  background: #453d34;
+}
+
+.footer-inner {
+  position: relative;
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Same family/weight as .hero-name, just sized down for the footer rather
+   than the hero's own clamp(26px, 3.7vw, 64px). */
+.footer-name {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 700;
+}
+
+/* Absolutely centered on .footer-inner rather than a third flex child —
+   the name and icon row on either side aren't the same width, so
+   space-between alone wouldn't land this dead-center. */
+.footer-cta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 17px;
+  text-transform: uppercase;
+  color: #efe2d5;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* Same three links as the header's contact popover (LinkedIn, copy email,
+   CV) — see .contact-popover-link for the header's version. Lighter/on-
+   dark treatment here since the footer's own background (#453d34) is
+   dark, unlike that popover's white card. */
+.footer-contact-icons {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Hidden until #footerReachOut is clicked (see initContactMenu, script.js),
+   which also resets the src to restart the GIF from its first frame on
+   every click rather than continuing mid-loop. Sized off its native
+   408x248 aspect ratio rather than a fixed box, absolutely positioned off
+   .footer-contact-icons so it doesn't push the icon row's own width/
+   space-between layout around. */
+.footer-reach-arrow {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-left: -6px;
+  width: 84px;
+  height: auto;
+  transform: translateY(-110%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.footer-reach-arrow.is-visible {
+  opacity: 1;
+}
+
+.footer-contact-link {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 226, 213, 0.12);
+  color: #efe2d5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.footer-contact-link:hover {
+  background: rgba(239, 226, 213, 0.22);
+  transform: scale(1.08);
+}
+
+.footer-contact-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Triggered from JS (initContactMenu) when #footerReachOut is clicked —
+   .is-popping is added to .footer-contact-icons and removed once the
+   longest-delayed link's animation finishes. Staggered per link like
+   .contact-popover-link's own pop-in above, so the three icons don't pop
+   in perfect unison. */
+@keyframes footer-icon-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.footer-contact-icons.is-popping .footer-contact-link {
+  animation: footer-icon-pop 0.4s ease;
+}
+
+.footer-contact-icons.is-popping .footer-contact-link:nth-child(1) { animation-delay: 0s; }
+.footer-contact-icons.is-popping .footer-contact-link:nth-child(2) { animation-delay: 0.06s; }
+.footer-contact-icons.is-popping .footer-contact-link:nth-child(3) { animation-delay: 0.12s; }
+
+#footerReachOut {
+  cursor: pointer;
+}
+
+.footer-contact-cv-text {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* "Email copied" confirmation, same idea as .contact-toast in the header
+   but anchored above the footer's own icon row (position: relative on
+   .footer-inner) instead of below it — the footer sits at the very
+   bottom of the page, so a toast dropping further down would run off
+   the viewport. */
+.footer-contact-toast {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  white-space: nowrap;
+  padding: 8px 14px;
+  background: #efe2d5;
+  color: #453d34;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.footer-contact-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 860px) {
+  .main-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(78vw, 320px);
+    background: rgba(18, 24, 34, 0.96);
+    backdrop-filter: blur(16px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 28px;
+    padding: 40px;
+    transform: translateX(100%);
+    transition: transform 0.4s ease;
+  }
+
+  .main-nav.open {
+    transform: translateX(0);
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .hero-copy {
+    left: 8%;
+    top: 14%;
+  }
+
+  .hero-island-main {
+    left: -18%;
+    bottom: 1%;
+    width: min(84vw, 640px);
+  }
+
+  .hero-island-far {
+    right: 2%;
+    bottom: 3%;
+    width: clamp(110px, 26vw, 220px);
+  }
+
+}
+
+@media (max-width: 520px) {
+  .hero-copy {
+    top: 12%;
+  }
+
+  .hero-name {
+    font-size: 30px;
+  }
+
+  .section {
+    padding: 88px 20px;
+  }
+}
