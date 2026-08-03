@@ -11,6 +11,17 @@
 </head>
 <body>
 
+<!-- Brief full-screen loader shown until the page (including images) has
+     finished loading — see #pageLoader in css/style.css and initPageLoader
+     in js/script.js, which fades and removes it on window 'load'. -->
+<div class="page-loader" id="pageLoader" aria-hidden="true">
+  <div class="page-loader-dots">
+    <span class="page-loader-dot"></span>
+    <span class="page-loader-dot"></span>
+    <span class="page-loader-dot"></span>
+  </div>
+</div>
+
 <header class="site-header" id="siteHeader">
   <div class="contact-menu">
     <button type="button" class="contact-trigger" id="contactTrigger" aria-haspopup="true" aria-expanded="false" aria-controls="contactPopover">

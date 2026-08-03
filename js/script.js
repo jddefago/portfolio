@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  initPageLoader();
   closeExperienceDescription = initProjectIslands()?.closeExperienceDescription || null;
   initImageLightbox();
   initGrassParticles();
@@ -239,6 +240,33 @@ function wireEmailCopy(btn, toast, onCopied) {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('is-visible'), TOAST_DURATION);
   });
+}
+
+// Keeps the loader up for a short minimum stretch (so it reads as an
+// intentional animation rather than a flash) even when the page — which is
+// mostly small illustrations — finishes loading almost instantly, then
+// fades it out once window 'load' fires and that minimum has elapsed.
+function initPageLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
+
+  const MIN_VISIBLE_MS = 400;
+  const shownAt = Date.now();
+
+  function hide() {
+    const elapsed = Date.now() - shownAt;
+    const wait = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    setTimeout(() => {
+      loader.classList.add('is-hidden');
+      loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+    }, wait);
+  }
+
+  if (document.readyState === 'complete') {
+    hide();
+  } else {
+    window.addEventListener('load', hide, { once: true });
+  }
 }
 
 function initContactMenu() {
