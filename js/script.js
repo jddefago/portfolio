@@ -250,7 +250,7 @@ function initPageLoader() {
   const loader = document.getElementById('pageLoader');
   if (!loader) return;
 
-  const MIN_VISIBLE_MS = 400;
+  const MIN_VISIBLE_MS = 900;
   const shownAt = Date.now();
 
   function hide() {

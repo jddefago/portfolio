@@ -95,48 +95,63 @@ img {
 .page-loader {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  /* Highest value in the stylesheet on purpose — this must sit above
+     absolutely everything else on first paint, no matter what other
+     stacking contexts the page ends up creating. */
+  z-index: 9999;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 22px;
   background: var(--paper);
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.5s ease, visibility 0s linear 0s;
+  transition: opacity 0.6s ease, visibility 0s linear 0s;
 }
 
 .page-loader.is-hidden {
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+.page-loader-mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sky-deep);
+  opacity: 0.75;
 }
 
 .page-loader-dots {
   display: flex;
-  gap: 14px;
+  gap: 20px;
 }
 
 .page-loader-dot {
-  width: 14px;
-  height: 14px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--accent);
-  animation: page-loader-bob 0.9s ease-in-out infinite;
+  animation: page-loader-bob 1s ease-in-out infinite;
 }
 
 .page-loader-dot:nth-child(2) {
   background: var(--accent-2);
-  animation-delay: 0.15s;
+  animation-delay: 0.16s;
 }
 
 .page-loader-dot:nth-child(3) {
   background: var(--sky-deep);
-  animation-delay: 0.3s;
+  animation-delay: 0.32s;
 }
 
 @keyframes page-loader-bob {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50% { transform: translateY(-12px); opacity: 1; }
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.55; }
+  50% { transform: translateY(-20px) scale(1.08); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
